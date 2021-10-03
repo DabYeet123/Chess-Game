@@ -6,6 +6,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 
 import board.BackgroundBoard;
+import board.PieceArrangeBoard;
 import display.Display;
 import gfx.Assets;
 import gfx.ImageLoader;
@@ -29,8 +30,6 @@ public class Game implements Runnable {
 	private BufferStrategy bs;
 	private Graphics g;
 	
-	//Board
-	public BackgroundBoard backBoard;
 	
 	//States
 	public State gameState;
@@ -67,10 +66,8 @@ public class Game implements Runnable {
 
 		handler = new Handler(this);
 		
-		backBoard = new BackgroundBoard(handler,8,8,64);
-		
-		gameState = new GameState(handler);
 		menuState = new MenuState(handler);
+		gameState = new GameState(handler);
 		State.setState(menuState);
 	}
 	
@@ -129,7 +126,7 @@ public class Game implements Runnable {
 			}
 			
 			if(timer >= 1000000000) {
-				System.out.println("Ticks and Frames: " + ticks);
+				//System.out.println("Ticks and Frames: " + ticks);
 				ticks = 0;
 				timer = 0;
 			
@@ -141,9 +138,7 @@ public class Game implements Runnable {
 		
 	}
 	
-	public BackgroundBoard getBackgroundBoard() {
-		return backBoard;
-	}
+
 	
 	public KeyManager getKeyManager() {
 		return keyManager;

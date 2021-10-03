@@ -26,6 +26,7 @@ public abstract class UIObject{
 	public abstract void onClick();
 	
 	public void onMouseMove(MouseEvent e) {
+		//Buttons
 		if(bounds.contains(e.getX(),e.getY()))
 			hovering = true;
 		else
@@ -33,6 +34,7 @@ public abstract class UIObject{
 	}
 	
 	public void onMouseRelease(MouseEvent e) {
+		//Buttons
 		if(hovering)
 			onClick();
 	}

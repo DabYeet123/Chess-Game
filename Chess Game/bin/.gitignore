@@ -1,8 +1,6 @@
-/board/
-/display/
-/gfx/
-/input/
-/maingame/
 /pieces/
+/board/
+/maingame/
 /ui/
-/utils/
+/input/
+/selector/

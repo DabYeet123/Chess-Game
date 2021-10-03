@@ -1,9 +1,11 @@
 package input;
 
+import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import selector.Selector;
 import ui.UIManager;
 
 public class MouseManager implements MouseListener, MouseMotionListener {
@@ -11,6 +13,7 @@ public class MouseManager implements MouseListener, MouseMotionListener {
 	private boolean leftPressed, rightPressed;
 	private int mouseX,mouseY;
 	private UIManager uiManager;
+	private Selector selector;
 	
 	public MouseManager() {
 		
@@ -19,6 +22,19 @@ public class MouseManager implements MouseListener, MouseMotionListener {
 	public void setUIManager(UIManager uiManager) {
 		this.uiManager = uiManager;
 	}
+	
+	public UIManager getUIManager() {
+		return uiManager;
+	}
+	
+	public void setSelector(Selector selector) {
+		this.selector = selector;
+	}
+	
+	public Selector getSelector() {
+		return selector;
+	}
+
 	
 	//Getters
 	
@@ -58,8 +74,9 @@ public class MouseManager implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		if(selector != null) {
+			selector.onMouseClicked(e);
+		}
 	}
 
 	@Override
@@ -80,6 +97,7 @@ public class MouseManager implements MouseListener, MouseMotionListener {
 		
 		if(uiManager != null)
 			uiManager.onMouseRelease(e);
+		
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import maingame.Handler;
 public class UIManager {
 	
 	private Handler handler;
-	private ArrayList<UIObject> objects;
+	public ArrayList<UIObject> objects;
 	
 	
 	public UIManager(Handler handler) {

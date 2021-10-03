@@ -10,9 +10,8 @@ public class BackgroundBoard {
 	
 	private Handler handler;
 	private int width,height;
-	private int size = 64;
-	private static int[][] backBoard;
-	
+	protected int size = 64;
+	private static Square[][] backBoard;
 
 	
 
@@ -23,28 +22,22 @@ public class BackgroundBoard {
 		this.height = height;
 		this.size = size;
 		
-		backBoard = new int[width][height];
-		for(int y = 0; y < width;y++ ) {
-			for(int x = 0; x < height; x++) {
-				if((x%2 == 0 && y%2 == 0)||((x%2 == 1 && y%2 == 1)))
-					backBoard[x][y] = 0;
-				else
-					backBoard[x][y] = 1;
-			}
-		}
+		backBoard = defaultBoard(size);
+			
 	}
 	
-	public static void defaultBoard(int size) {
-		backBoard = new int[][] {
-					 {0,1,0,1,0,1,0,1},
-		             {1,0,1,0,1,0,1,0},
-		             {0,1,0,1,0,1,0,1},
-		             {1,0,1,0,1,0,1,0},
-		             {0,1,0,1,0,1,0,1},
-		             {1,0,1,0,1,0,1,0},
-		             {0,1,0,1,0,1,0,1},
-		             {1,0,1,0,1,0,1,0},
-		             };
+	public Square[][] defaultBoard(int size) {
+		backBoard = new Square[8][8];
+		for(int y = 0; y < 8;y++ ) {
+			for(int x = 0; x < 8; x++) {
+				if((x%2 == 0 && y%2 == 0)||((x%2 == 1 && y%2 == 1)))
+					backBoard[x][y] = new Square(x,y,size, new Color(240, 214, 182),null,"l");
+				else
+					backBoard[x][y] = new Square(x,y,size, new Color(179, 133, 86),null,"d");
+			}
+		}
+		
+		return backBoard;
 	}
 	
 
@@ -56,20 +49,14 @@ public class BackgroundBoard {
 	
 	
 	public void render(Graphics g) {
-		for(int y = 0; y < width;y++ ) {
-			for(int x = 0; x < height; x++) {
-				if(backBoard[x][y] == 0) {
-					System.out.println("0");
-					g.setColor(Color.black);
-					g.fillRect(x*size, y*size, size, size);
-				}
-				else if(backBoard[x][y] == 1) {
-					System.out.println("1");
-					g.setColor(Color.white);
-					g.fillRect(x*size, y*size, size, size);
-				}
+		for(Square[] listSquares:backBoard) {
+			for(Square square:listSquares) {
+				square.render(g);			
 			}
 		}
-
+	}
+	
+	public Square[][] getBackBoard(){
+		return backBoard;
 	}
 }
