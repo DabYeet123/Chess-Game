@@ -13,7 +13,7 @@ public class Assets {
 	public static void init() {
 		SpriteSheet sheet = new SpriteSheet(ImageLoader.loadImage("/textures/chess_sprite_sheet(64x).png"));
 		
-	
+		//SpriteSheet sheet = new SpriteSheet(ImageLoader.loadImage("/textures/chess_sprite_sheet(64x).png"));
 		
 		w_king = sheet.crop(0, 0, width, height);
 		w_queen = sheet.crop(width, 0, width, height);

@@ -1,11 +1,11 @@
 8 8
 64
 
-br bn bb bq bk oo oo oo
+br bn bb bq bk bb bn br
+bp bp bp bp bp bp bp bp
 oo oo oo oo oo oo oo oo
 oo oo oo oo oo oo oo oo
 oo oo oo oo oo oo oo oo
 oo oo oo oo oo oo oo oo
-wr oo oo oo oo oo oo oo
-oo oo oo oo oo oo oo oo
-oo oo oo oo oo oo oo wk
+wp wp wp wp wp wp wp wp
+wr wn wb wq wk wb wn wr

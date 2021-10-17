@@ -31,7 +31,8 @@ public class GameState extends State{
 		backgroundBoard = new BackgroundBoard(handler,8,8,64);
 		handler.setBackgroungBoard(backgroundBoard);
 		
-		pieceBoard = new PieceArrangeBoard(handler,"res/saves/world1.txt");
+		//pieceBoard = new PieceArrangeBoard(handler,"/saves/test.txt");
+		pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
 		handler.setPieceArrangeBoard(pieceBoard);
 		
 		highlightBoard = new HighlightBoard(handler, 8, 8, 64);
@@ -41,7 +42,6 @@ public class GameState extends State{
 		selector = new Selector(handler);
 		handler.getMouseManager().setSelector(selector);
 		
-	
 	}
 
 
@@ -83,6 +83,12 @@ public class GameState extends State{
 			}
 			
 			}));
+		
+		for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
+			piece.checkProtects();
+			piece.checkMoves();
+			handler.getPieceArrangeBoard().controlRangeUpdate();
+		}
 	}
 	
 

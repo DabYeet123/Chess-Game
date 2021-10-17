@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.ArrayUtils;
 
 import board.PieceArrangeBoard;
 import maingame.Handler;
@@ -17,18 +16,29 @@ public abstract class Piece {
 	protected Handler handler;
 	protected int posX,posY;
 	protected int pixX,pixY;
+	protected int[] pos = new int[2];
 	protected int size;
 	protected Rectangle bounds;
 	protected final String id;
 	protected final String c;
 	protected BufferedImage texture;
-	protected boolean deliveringCheck = false;
+	protected boolean deliveringCheck;
+	protected boolean isPinned;
+	protected int[] blockMove;
+	protected String restricted;
+	protected String pRestriction;
 	
 	private boolean isBreak = false;
+	private boolean isBreak2 = false;
+	
+	private Piece pieceBlocking;
+	private String pieceBlockType;
 	
 	protected ArrayList<int[]> movables = new ArrayList<int[]>();
 	protected ArrayList<int[]> capturables = new ArrayList<int[]>();
 	protected ArrayList<int[]> protects = new ArrayList<int[]>();
+	protected ArrayList<int[]> pProtects = new ArrayList<int[]>();
+	protected ArrayList<int[]> kingRestricts = new ArrayList<int[]>();
 
 	
 	public Piece(Handler handler,int posX, int posY, int size,String id,String c,BufferedImage texture) {
@@ -42,15 +52,25 @@ public abstract class Piece {
 		this.pixX = posX * size;
 		this.pixY = posY * size;
 		
+		pos[0] = posX;
+		pos[1] = posY;
+		
 		deliveringCheck = false;
+		isPinned = false;
+		blockMove = null;
+		restricted = null;
+		pRestriction = null;
 		
 		bounds = new Rectangle(pixX,pixY,size,size);
 	}
 	
-	public abstract void checkMoves(boolean block);
+	public abstract void checkMoves();
 	
 	public abstract void checkProtects();
 	
+	public void checkRTPKing(int xSpace, int ySpace, boolean M, boolean C, boolean P,boolean KP) {
+		
+	}
 	
 	public void update() {
 		Piece[][] pieceBoard = handler.getPieceArrangeBoard().getPieceBoard();
@@ -68,6 +88,8 @@ public abstract class Piece {
 		bounds.y = pixY;
 		bounds.height = size;
 		bounds.width = size;
+		pos[0] = posX;
+		pos[1] = posY;
 		pieceBoard[posX][posY] = this;
 	}
 	
@@ -94,10 +116,13 @@ public abstract class Piece {
 				pos[0] = x;
 				pos[1] = y;
 				movables.add(pos);
-				
-			}else {
+			}else if(pb[x][y] != null) {
+				pos[0] = x;
+				pos[1] = y;
 				isBreak = true;
 			}
+		}else {
+			isBreak = true;
 		}
 	}
 	
@@ -116,11 +141,13 @@ public abstract class Piece {
 					capturables.add(pos);
 				}
 			}
-		}	
+		}else {
+			isBreak = true;
+		}
 	}
 	
 	public void addProtects(int x, int y) {
-		
+
 		if(inRange(x,y)) {
 			
 			int[] pos = new int[2];
@@ -130,13 +157,49 @@ public abstract class Piece {
 				pos[0] = x;
 				pos[1] = y;
 				isBreak = true;
+				pieceBlocking = pb[x][y];
 				protects.add(pos);	
 			}else {
 				pos[0] = x;
 				pos[1] = y;
 				protects.add(pos);
 			}
-		}	
+		}else {
+			isBreak = true;
+		}
+	}
+	
+	public void addPProtects(int x, int y) {
+		
+		if(inRange(x,y)) {
+			
+			int[] pos = new int[2];
+			Piece[][] pb = handler.getPieceArrangeBoard().getPieceBoard();
+			
+			if(pb[x][y] != null) {
+				pos[0] = x;
+				pos[1] = y;
+				if(pieceBlocking!=null) {
+					if((pb[x][y].getId().equals("k"))&&(!c.equals(pb[x][y].getC()))) {//Set Pins
+						pieceBlocking.isPinned = true;
+						pieceBlocking.restricted = pieceBlockType;
+						//System.out.println(pieceBlocking.isPinned+pieceBlocking.restricted);
+						//System.out.println(pieceBlocking);
+					}
+				}
+				isBreak2 = true;
+				pProtects.add(pos);	
+			}else {
+				pos[0] = x;
+				pos[1] = y;
+				pProtects.add(pos);
+				if(pieceBlocking.id.equals("k")) {
+					kingRestricts.add(pos);
+				}
+			}
+		}else {
+			isBreak2 = true;
+		}
 	}
 	
 		
@@ -149,6 +212,8 @@ public abstract class Piece {
 				pawn.timesPassed += 1;
 			}
 		}
+		
+		
 		handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
 		setPosX(x);
 		setPosY(y);
@@ -188,9 +253,40 @@ public abstract class Piece {
 		}
 	}
 	
+	public static boolean isInBetween(int[] moving, int[] checking, int[] attacked, String type) {
+		if(type.equals("HV")) {
+			if( ((attacked[0]==moving[0])&&(attacked[0]==checking[0])) && 
+				(((moving[1]>attacked[1])&&(moving[1]<checking[1]))||((moving[1]<attacked[1])&&(moving[1]>checking[1])))
+				) {
+				return true;
+			}else if( ((attacked[1]==moving[1])&&(attacked[1]==checking[1])) && 
+					(((moving[0]>attacked[0])&&(moving[0]<checking[0]))||((moving[0]<attacked[0])&&(moving[0]>checking[0])))
+					) {
+				return true;
+			}else {
+				return false;
+			}
+		}else if(type.equals("Diag")) {
+			if(	(((moving[0]>attacked[0])&&(moving[0]<checking[0]))&&((moving[1]>attacked[1])&&(moving[1]<checking[1])))||
+				(((moving[0]>attacked[0])&&(moving[0]<checking[0]))&&((moving[1]<attacked[1])&&(moving[1]>checking[1])))||
+				(((moving[0]<attacked[0])&&(moving[0]>checking[0]))&&((moving[1]>attacked[1])&&(moving[1]<checking[1])))||
+				(((moving[0]<attacked[0])&&(moving[0]>checking[0]))&&((moving[1]<attacked[1])&&(moving[1]>checking[1])))
+				) {
+				return true;
+			}else {
+				return false;
+			}
+		}else {
+			return false;
+		}
+	}
+		
 	
 	//SQUARES CHECKING
-	public void checkVertical(int space,boolean M,boolean C,boolean P){
+	public void checkVertical(int space,boolean M,boolean C,boolean P,boolean PP){
+		
+		pieceBlockType = "V";
+		pieceBlocking = null;
 		
 		int posX = this.getPosX();
 		int posY = this.getPosY();
@@ -206,25 +302,52 @@ public abstract class Piece {
 		
 
 		//Upper Region
-		for(int y = posY - 1; y >= yUpper;y--) {
+		for(int y = posY - 1; y >= yUpper-1; y--) {
+			
 			if(M) {addMoves(x, y);}
-			if(C) {addCaptures(x,y);}
+			if(C) {addCaptures(x,y);};
 			if(P) {addProtects(x,y);}
-			if(isBreak) {isBreak = false;break;}
+			if(isBreak) {
+				isBreak = false;
+				if(PP) {
+					for(int y1 = y - 1; y1 >= yUpper-1; y1--) {
+						if(inRange(x,y1)) {
+						addPProtects(x,y1);
+						if(isBreak2) {isBreak2 = false;break;}
+						}
+					}
+				}
+				break;
+			}
 		}
 			
 		//Lower Region
-		for(int y = posY + 1; y <= yLower;y++) {
+		for(int y = posY + 1; y <= yLower+1;y++) {
+			//System.out.println(x+" "+y);
 			if(M) {addMoves(x, y);}
 			if(C) {addCaptures(x,y);}
 			if(P) {addProtects(x,y);}
-			if(isBreak) {isBreak = false;break;}
+			if(isBreak) {
+				isBreak = false;
+				if(PP) {
+					for(int y1 = y + 1; y1 <= yLower+1; y1++) {
+						if(inRange(x,y1)) {
+						addPProtects(x,y1);
+						if(isBreak2) {isBreak2 = false;break;}
+						}
+					}
+				}
+				break;
+			}
 		}
 
 			
 	}
 	
-	public void checkHorizontal(int space,boolean M,boolean C,boolean P){
+	public void checkHorizontal(int space,boolean M,boolean C,boolean P,boolean PP){
+		
+		pieceBlockType = "H";
+		pieceBlocking = null;
 		
 		int posX = this.getPosX();
 		int posY = this.getPosY();
@@ -239,24 +362,49 @@ public abstract class Piece {
 		}
 		
 		//Left Region
-		for(int x = posX - 1; x >= xLeft;x--) {
+		for(int x = posX - 1; x >= xLeft-1;x--) {
 			if(M) {addMoves(x, y);}
 			if(C) {addCaptures(x,y);}
 			if(P) {addProtects(x,y);}
-			if(isBreak) {isBreak = false;break;}
+			if(isBreak) {
+				isBreak = false;
+				if(PP) {
+					for(int x1 = x - 1; x1 >= xLeft-1; x1--) {
+						if(inRange(x1,y)) {
+						addPProtects(x1,y);
+						if(isBreak2) {isBreak2 = false;break;}
+						}
+					}
+				}
+				break;
+			}
 		}
 		
 		//Right Region
-		for(int x = posX + 1; x  <= xRight;x++) {
+		for(int x = posX + 1; x  <= xRight+1;x++) {
 			if(M) {addMoves(x, y);}
 			if(C) {addCaptures(x,y);}
 			if(P) {addProtects(x,y);}
-			if(isBreak) {isBreak = false;break;}
+			if(isBreak) {
+				isBreak = false;
+				if(PP) {
+					for(int x1 = x + 1; x1 <= xRight+1; x1++) {
+						if(inRange(x1,y)) {
+						addPProtects(x1,y);
+						if(isBreak2) {isBreak2 = false;break;}
+						}
+					}
+				}
+				break;
+			}
 			
 		}
 	}
 	
-	public void checkLeftSlope(int space,boolean M,boolean C,boolean P){
+	public void checkLeftSlope(int space,boolean M,boolean C,boolean P,boolean PP){
+		
+		pieceBlockType = "LS";
+		pieceBlocking = null;
 		
 		int posX = this.getPosX();
 		int posY = this.getPosY();
@@ -271,25 +419,56 @@ public abstract class Piece {
 		}
 		
 		y = posY;
-		for(int x = posX - 1; x >= xLeft; x--) {
+		//System.out.println("Top Left");
+		for(int x = posX - 1; x >= xLeft-1; x--) { //Top Left
 			y -= 1;
 			if(M) {addMoves(x, y);}
 			if(C) {addCaptures(x,y);}
 			if(P) {addProtects(x,y);}
-			if(isBreak) {isBreak = false;break;}
+			
+				if(isBreak) {
+					isBreak = false;
+					if(PP) {
+						for(int x1 = x - 1; x1 >= xLeft-1; x1--) {
+							y -= 1;
+							if(inRange(x1,y)) {
+							addPProtects(x1,y);
+							if(isBreak2) {isBreak2 = false;break;}
+							}
+						}
+					}
+					break;
+				}
 		}
 
 		y = posY;
-		for(int x = posX + 1; x  <= xRight;x++) {
+		//System.out.println("Bottom Right");
+		for(int x = posX + 1; x  <= xRight+1;x++) { //Bottom Right
 			y += 1;
 			if(M) {addMoves(x, y);}
 			if(C) {addCaptures(x,y);}
 			if(P) {addProtects(x,y);}
-			if(isBreak) {isBreak = false;break;}	
+
+				if(isBreak) {
+					isBreak = false;
+					if(PP) {
+						for(int x1 = x + 1; x1 <= xRight+1; x1++) {
+							y += 1;
+							if(inRange(x1,y)) {
+								addPProtects(x1,y);
+								if(isBreak2) {isBreak2 = false;break;}
+							}
+						}
+					}
+					break;
+				}
 		}
 	}
 
-	public void checkRightSlope(int space,boolean M,boolean C,boolean P){
+	public void checkRightSlope(int space,boolean M,boolean C,boolean P,boolean PP){
+		
+		pieceBlockType = "RS";
+		pieceBlocking = null;
 		
 		int posX = this.getPosX();
 		int posY = this.getPosY();
@@ -305,22 +484,49 @@ public abstract class Piece {
 		}
 		
 		y = posY;
-		for(int x = posX - 1; x >= xLeft; x--) {
+		//System.out.println("Bottom Left");
+		for(int x = posX - 1; x >= xLeft-1; x--) { //Bottom Left
 			y += 1;
 			if(M) {addMoves(x, y);}
 			if(C) {addCaptures(x,y);}
 			if(P) {addProtects(x,y);}
-			if(isBreak) {isBreak = false;break;}
+
+			if(isBreak) {
+				isBreak = false;
+				if(PP) {
+					for(int x1 = x - 1; x1 >= xLeft-1; x1--) {
+						y += 1;
+						if(inRange(x1,y)) {
+							addPProtects(x1,y);
+							if(isBreak2) {isBreak2 = false;break;}
+						}
+					}
+				}
+				break;
+			}
 		}
 			
 		y = posY;
-		for(int x = posX + 1; x  <= xRight;x++) {
+		//System.out.println("Top Right");
+		for(int x = posX + 1; x  <= xRight+1;x++) { //Top Right
 			y -= 1;
 			if(M) {addMoves(x, y);}
 			if(C) {addCaptures(x,y);}
 			if(P) {addProtects(x,y);}
-			if(isBreak) {isBreak = false;break;}	
-			
+
+			if(isBreak) {
+				isBreak = false;
+				if(PP) {
+					for(int x1 = x + 1; x1 <= xRight+1; x1++) {
+						y -= 1;
+						if(inRange(x1,y)) {
+							addPProtects(x1,y);
+							if(isBreak2) {isBreak2 = false;break;}
+						}
+					}
+				}
+				break;
+			}	
 		}
 	}
 	
@@ -339,63 +545,64 @@ public abstract class Piece {
 	}
 	
 	public void checkBlocks() {
+		if(!id.equals("k")) {
 		if(((handler.getPieceArrangeBoard().getBKing().isInCheck())&&(c.equals("b"))) 
 		||((handler.getPieceArrangeBoard().getWKing().isInCheck())&&(c.equals("w")))) {
 		
 		String turn = handler.getMouseManager().getSelector().getTurn();
 		King bKing = handler.getPieceArrangeBoard().getBKing();
 		King wKing = handler.getPieceArrangeBoard().getWKing();
+		King king = null;
+		blockMove = null;
 		ArrayList<int[]> mov = new ArrayList<int[]>();
 		ArrayList<int[]> cap = new ArrayList<int[]>();
 		
-		for(Piece piece:handler.getPieceArrangeBoard().getDeliveringCheckList()) {
-			for(int[] pos:movables) {
-				if((turn.equals("w")) && (wKing.isInCheck())) {
-					if((piece.getId().equals("r")||(piece.getId().equals("q")))){
-						if( ((wKing.posX==piece.posX)&&(pos[0]==wKing.posX)) && 
-								(((pos[1]>wKing.posY)&&(pos[1]<piece.posY))||((pos[1]<wKing.posY)&&(pos[1]>piece.posY)))
-								) {
-							mov.add(pos);
-						}else if( ((wKing.posY==piece.posY)&&(pos[1]==wKing.posY)) && 
-								(((pos[0]>wKing.posX)&&(pos[0]<piece.posX))||((pos[0]<wKing.posX)&&(pos[0]>piece.posX)))
-								) {
-							mov.add(pos);
+		boolean canBlock = false;
+		
+		if(handler.getPieceArrangeBoard().getDeliveringCheckList().size() == 1) {
+			
+			if(turn.equals("w")) {
+				king = wKing;
+			}else if (turn.equals("b")) {
+				king = bKing;
+			}
+			
+			for(Piece piece:handler.getPieceArrangeBoard().getDeliveringCheckList()) {
+				for(int[] pos:movables) {
+					
+					if((piece.getId().equals("r"))||(piece.getId().equals("q"))){ //Checks for blocking vertical and horizontal checks
+						canBlock = isInBetween(pos,new int[] {piece.posX,piece.posY},new int[] {king.posX,king.posY},"HV");
+						if(canBlock){
+						mov.add(pos);
+						blockMove = pos;
 						}
 					}
-					if((piece.getId().equals("b")||(piece.getId().equals("q")))){
+					if((piece.getId().equals("b"))||(piece.getId().equals("q"))){ // checks for blocking diagonal checks
+						canBlock = isInBetween(pos,new int[] {piece.posX,piece.posY},new int[] {king.posX,king.posY},"Diag");
 						for(int[] prot:piece.protects) {
-							
-						
-							if(
-								(((pos[0]>wKing.posX)&&(pos[0]<piece.posX))||((pos[0]<wKing.posX)&&(pos[0]>piece.posX)))||
-								(((pos[1]>wKing.posY)&&(pos[1]<piece.posY))||((pos[1]<wKing.posY)&&(pos[1]>piece.posY)))
-								) {
-
+							if(canBlock){
 								if(Arrays.equals(pos, prot)) {
 									mov.add(pos);
-								}
-							
+									blockMove = pos;
+								}			
+							}
 						}
-					}
-					}
-				}else if((turn.equals("b")) && (bKing.isInCheck())) {
-					if((piece.getId().equals("r")||(piece.getId().equals("q")))){
-						if( ((bKing.posX==piece.posX)&&(pos[0]==bKing.posX)) && 
-								(((pos[1]>bKing.posY)&&(pos[1]<piece.posY))||((pos[1]<bKing.posY)&&(pos[1]>piece.posY)))
-								) {
-							mov.add(pos);
-						}else if( ((bKing.posY==piece.posY)&&(pos[1]==bKing.posY)) && 
-								(((pos[0]>bKing.posX)&&(pos[0]<piece.posX))||((pos[0]<bKing.posX)&&(pos[0]>piece.posX)))
-								) {
-							mov.add(pos);
-						}
+					}			
+				}
+				for(int[] pos: capturables) { //Checks if the checking piece can be captured
+
+					if((pos[0]==piece.posX)&&(pos[1]==piece.posY)) {
+						cap.add(pos);
+						
 					}
 				}
 			}
 		}
 		
+		
 		movables = mov;
 		capturables = cap;
+	}
 	}
 	}
 
@@ -518,6 +725,71 @@ public abstract class Piece {
 	public void setDeliveringCheck(boolean deliveringCheck) {
 		this.deliveringCheck = deliveringCheck;
 	}
+
+	public boolean isPinned() {
+		return isPinned;
+	}
+
+	public void setPinned(boolean isPinned) {
+		this.isPinned = isPinned;
+	}
+
+	public int[] getBlockMove() {
+		return blockMove;
+	}
+
+	public void setBlockMove(int[] blockMove) {
+		this.blockMove = blockMove;
+	}
+
+	public String getRestricted() {
+		return restricted;
+	}
+
+	public void setRestricted(String restricted) {
+		this.restricted = restricted;
+	}
+
+	public String getpRestriction() {
+		return pRestriction;
+	}
+
+	public void setpRestriction(String pRestriction) {
+		this.pRestriction = pRestriction;
+	}
+
+	public ArrayList<int[]> getpProtects() {
+		return pProtects;
+	}
+
+	public void setpProtects(ArrayList<int[]> pProtects) {
+		this.pProtects = pProtects;
+	}
+
+	public void setProtects(ArrayList<int[]> protects) {
+		this.protects = protects;
+	}
+
+	public ArrayList<int[]> getKingRestricts() {
+		return kingRestricts;
+	}
+
+	public void setKingRestricts(ArrayList<int[]> kingRestricts) {
+		this.kingRestricts = kingRestricts;
+	}
+	
+	
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
 
 
 	

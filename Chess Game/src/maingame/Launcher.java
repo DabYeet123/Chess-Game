@@ -1,7 +1,5 @@
 package maingame;
 
-import board.BackgroundBoard;
-import display.Display;
 
 public class Launcher {
 	

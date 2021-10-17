@@ -27,29 +27,30 @@ public class Knight extends Piece {
 
 
 	@Override
-	public void checkMoves(boolean block) {
+	public void checkMoves() {
+
 		movables = new ArrayList<int[]>();
 		capturables = new ArrayList<int[]>();
-		checkRTP(1,2,"moves");
-		checkRTP(1,-2,"moves");
-		checkRTP(-1,2,"moves");
-		checkRTP(-1,-2,"moves");
-		checkRTP(2,1,"moves");
-		checkRTP(2,-1,"moves");
-		checkRTP(-2,1,"moves");
-		checkRTP(-2,-1,"moves");
 		
-		checkRTP(1,2,"captures");
-		checkRTP(1,-2,"captures");
-		checkRTP(-1,2,"captures");
-		checkRTP(-1,-2,"captures");
-		checkRTP(2,1,"captures");
-		checkRTP(2,-1,"captures");
-		checkRTP(-2,1,"captures");
-		checkRTP(-2,-1,"captures");
-		
-		if(block) {
-			checkBlocks();
+		if(!isPinned) {
+			checkRTP(1,2,"moves");
+			checkRTP(1,-2,"moves");
+			checkRTP(-1,2,"moves");
+			checkRTP(-1,-2,"moves");
+			checkRTP(2,1,"moves");
+			checkRTP(2,-1,"moves");
+			checkRTP(-2,1,"moves");
+			checkRTP(-2,-1,"moves");
+			
+			checkRTP(1,2,"captures");
+			checkRTP(1,-2,"captures");
+			checkRTP(-1,2,"captures");
+			checkRTP(-1,-2,"captures");
+			checkRTP(2,1,"captures");
+			checkRTP(2,-1,"captures");
+			checkRTP(-2,1,"captures");
+			checkRTP(-2,-1,"captures");
+
 		}
 		
 	}

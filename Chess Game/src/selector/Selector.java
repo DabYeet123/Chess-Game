@@ -40,10 +40,8 @@ public class Selector {
 		//Moving and Capturing
 		if(pieceSelected != null) {
 			for(int[] pos:pieceSelected.getMovables()) {
-				if(Arrays.equals(pos, new int[]{x,y})) {
+				if(Arrays.equals(pos, new int[]{x,y})) {					
 					pieceSelected.moveTo(x,y);
-					handler.getPieceArrangeBoard().controlRangeUpdate();
-					checkForChecks();
 					turnUpdate();
 					highlightUpdate();
 					return;
@@ -55,20 +53,21 @@ public class Selector {
 						Pawn p = (Pawn)pieceSelected;
 						if(p.getEnPassant() == pos) {
 							p.enPassant(pos[0],pos[1]);
-							handler.getPieceArrangeBoard().controlRangeUpdate();
-							checkForChecks();
 							turnUpdate();
 							highlightUpdate();
 							return;
 						}
 					}
 					pieceSelected.moveTo(x,y);
-					handler.getPieceArrangeBoard().controlRangeUpdate();
-					checkForChecks();
 					turnUpdate();
 					highlightUpdate();
 					return;
 				}
+			}
+			if(pieceSelected.getBounds().contains(e.getX(),e.getY())) {
+				pieceSelected = null;
+				highlightUpdate();
+				return;
 			}
 		}
 		
@@ -80,16 +79,16 @@ public class Selector {
 						((turn.equals("b"))&&(pb[x][y].getC().equals("b")))) {
 					if(pb[x][y].getBounds().contains(e.getX(),e.getY())) {
 						pieceSelected = pb[x][y];
-						pieceSelected.checkMoves(true);
 					}
 				}else {
 						pieceSelected = null;
 					}
+			}else {
+				pieceSelected = null;
 			}
 		}
 		
 		highlightUpdate();
-		
 	}
 	
 	
@@ -138,13 +137,20 @@ public class Selector {
 	
 	public void controlledHighlightUpdate() { //Updates the area in which the pieces control
 		Square[][] chl = handler.getHighlightBoard().getControlHighlights();
-		handler.getPieceArrangeBoard().controlRangeUpdate();
+		//handler.getPieceArrangeBoard().controlRangeUpdate();
 		if(controlHighlightOn) {	
 			for(Square[] listSquares:chl) {
 				for(Square square:listSquares) {
 					square.setC(null);
 				}
 			}
+			/*for(int[] pos:handler.getPieceArrangeBoard().getwPControlRange()) {
+				if(chl[pos[0]][pos[1]].getId().equals("l")) {
+					chl[pos[0]][pos[1]].setC(new Color(161, 154, 156));
+				}else if(chl[pos[0]][pos[1]].getId().equals("d")) {
+					chl[pos[0]][pos[1]].setC(new Color(120, 111, 114));
+				}
+			}*/
 			
 			for(int[] pos:handler.getPieceArrangeBoard().getWControlRange()) {
 				if(chl[pos[0]][pos[1]].getId().equals("l")) {
@@ -173,6 +179,7 @@ public class Selector {
 	public void turnUpdate() {
 		pieceSelected = null;
 		turnSwitch();
+		
 		for(Pawn pawn:handler.getPieceArrangeBoard().getPawnPieces()) {
 			if(((turn.equals("w"))&&(pawn.getC().equals("w"))) || 
 					((turn.equals("b"))&&(pawn.getC().equals("b")))){
@@ -181,24 +188,79 @@ public class Selector {
 				}
 			}
 		}
+		for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
+			piece.setRestricted(null);
+			piece.setPinned(false);
+		}
+		
+		if(turn.equals("w")) {
+			for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
+				piece.checkProtects();
+			}
+			handler.getPieceArrangeBoard().controlRangeUpdate();
+			checkForChecks();
+			for(Piece piece:handler.getPieceArrangeBoard().getWPieces()) {
+				piece.checkMoves();
+			}
+		}else if(turn.equals("b")) {
+			for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
+				piece.checkProtects();
+			}
+			handler.getPieceArrangeBoard().controlRangeUpdate();
+			checkForChecks();
+			for(Piece piece:handler.getPieceArrangeBoard().getBPieces()) {
+				piece.checkMoves();
+				
+
+			}
+		}
+		
+		/*handler.getPieceArrangeBoard().controlRangeUpdate();
+		checkForChecks();*/
+		
+		if(turn.equals("w")) {
+			for(Piece piece:handler.getPieceArrangeBoard().getWPieces()) {
+				piece.checkBlocks();
+			}
+		}else if(turn.equals("b")) {
+			for(Piece piece:handler.getPieceArrangeBoard().getBPieces()) {
+				piece.checkBlocks();
+			}
+		}
+
+		
+
+		
+		/*for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
+			piece.checkMoves(true);
+			piece.checkProtects();
+			if(piece.isPinned()) {
+				System.out.println(piece+" : is pinned");
+				System.out.println(piece.getPosX()+" "+piece.getPosY());
+				System.out.println(piece.getRestricted());
+			}
+		}*/
+		
 	}
 	
 	public void checkForChecks() {
-		if(turn.equals("w")) {
+		if(turn.equals("b")) {
 			King bKing = handler.getPieceArrangeBoard().getBKing();
 			bKing.setInCheck(false);
 			for(Piece piece:handler.getPieceArrangeBoard().getWPieces()) {
 				if(piece.isDeliveringCheck()) {	
 					bKing.setInCheck(true);
+					System.out.println("Black is in Check!");
 					break;
 				}
 			}
-		}else if(turn.equals("b")) {		
+		}else if(turn.equals("w")) {		
 			King wKing = handler.getPieceArrangeBoard().getWKing();
 			wKing.setInCheck(false);
 			for(Piece piece:handler.getPieceArrangeBoard().getBPieces()) {
 				if(piece.isDeliveringCheck()) {	
 					wKing.setInCheck(true);
+					System.out.println("White is in Check!");
 					break;
 				}
 			}
@@ -206,7 +268,7 @@ public class Selector {
 	}
 	
 
-	
+		
 	
 	
 	public void tick() {

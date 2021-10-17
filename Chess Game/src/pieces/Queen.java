@@ -27,28 +27,38 @@ public class Queen extends Piece {
 	
 	
 	@Override
-	public void checkMoves(boolean block) {
+	public void checkMoves() {
+
 		movables = new ArrayList<int[]>();
 		capturables = new ArrayList<int[]>();
-		checkLeftSlope(0,true,true,false);
-		checkRightSlope(0,true,true,false);
-		checkHorizontal(0,true,true,false);
-		checkVertical(0,true,true,false);
-		
-		
-		if(block) {
-			checkBlocks();
+		if(!isPinned) {
+			checkLeftSlope(0,true,true,false,false);
+			checkRightSlope(0,true,true,false,false);
+			checkHorizontal(0,true,true,false,false);
+			checkVertical(0,true,true,false,false);
+			
+
+		}else if(restricted.equals("LS")) {
+			checkLeftSlope(0,true,true,false,false);
+		}else if(restricted.equals("RS")) {
+			checkRightSlope(0,true,true,false,false);
+		}else if(restricted.equals("H")) {
+			checkHorizontal(0,true,true,false,false);
+		}else if(restricted.equals("V")) {
+			checkVertical(0,true,true,false,false);
 		}
 
 	}
 	
 	public void checkProtects() {
 		protects = new ArrayList<int[]>();
+		pProtects = new ArrayList<int[]>();
+		kingRestricts = new ArrayList<int[]>();
 		
-		checkLeftSlope(0,false,false,true);
-		checkRightSlope(0,false,false,true);
-		checkHorizontal(0,false,false,true);
-		checkVertical(0,false,false,true);
+		checkLeftSlope(0,false,false,true,true);
+		checkRightSlope(0,false,false,true,true);
+		checkHorizontal(0,false,false,true,true);
+		checkVertical(0,false,false,true,true);
 	}
 
 }

@@ -34,17 +34,24 @@ public class Pawn extends Piece {
 
 
 	@Override
-	public void checkMoves(boolean block) {
+	public void checkMoves() {
+
 		movables = new ArrayList<int[]>();
 		capturables = new ArrayList<int[]>();
-		protects = new ArrayList<int[]>();
-		enPassant = null;
-		pawnMoveCheck();
-		enPassantCheck();
-		
-		if(block) {
-			checkBlocks();
+
+		if(!isPinned) {
+			enPassant = null;
+			pawnMoveCheck(true,"both",false);
+			enPassantCheck();
+
+		}else if(restricted.equals("V")) {
+			pawnMoveCheck(true,null,false);
+		}else if(restricted.equals("LS")) {
+			pawnMoveCheck(false,"left",false);
+		}else if(restricted.equals("RS")) {
+			pawnMoveCheck(false,"right",false);
 		}
+
 
 		
 	}
@@ -52,42 +59,87 @@ public class Pawn extends Piece {
 	public void checkProtects() {
 		protects = new ArrayList<int[]>();
 		
-		pawnMoveCheck();
+		pawnMoveCheck(false,null,true);
 	}
 	
 	
-	public void pawnMoveCheck() {
-		
+	public void pawnMoveCheck(boolean M,String slope,boolean P) {
+		Piece[][] pb = handler.getPieceArrangeBoard().getPieceBoard();
+
 		if(c.equals("w")) {
 			if(hasMoved) {
-				checkRTP(0,-1,"moves");
-				checkRTP(-1,-1,"captures");
-				checkRTP(1,-1,"captures");
-				checkRTP(-1,-1,"protects");
-				checkRTP(1,-1,"protects");
+				if(M) {
+					checkRTP(0,-1,"moves");
+					}
+				if(slope!=null) {
+					if((slope.equals("left"))||(slope.equals("both"))) {
+						checkRTP(-1,-1,"captures");
+					}
+					if((slope.equals("right"))||(slope.equals("both"))) {
+						checkRTP(1,-1,"captures");
+					}
+				}
+				if(P) {
+					checkRTP(-1,-1,"protects");
+					checkRTP(1,-1,"protects");
+				}
 			}else {
-				checkRTP(0,-2,"moves");
-				checkRTP(0,-1,"moves");
-				checkRTP(-1,-1,"captures");
-				checkRTP(1,-1,"captures");
-				checkRTP(-1,-1,"protects");
-				checkRTP(1,-1,"protects");
+				if(M) {
+					if(pb[posX][posY-1]==null) {
+						checkRTP(0,-2,"moves");
+					}
+					checkRTP(0,-1,"moves");
+				}
+				if(slope!=null) {
+					if((slope.equals("left"))||(slope.equals("both"))) {
+						checkRTP(-1,-1,"captures");
+					}
+					if((slope.equals("right"))||(slope.equals("both"))) {
+						checkRTP(1,-1,"captures");
+					}
+				}
+				if(P) {
+					checkRTP(-1,-1,"protects");
+					checkRTP(1,-1,"protects");
+				}
 			}
 			
 		}else if(c.equals("b")){
 			if(hasMoved) {
-				checkRTP(0,1,"moves");
-				checkRTP(-1,1,"captures");
-				checkRTP(1,1,"captures");
-				checkRTP(-1,1,"protects");
-				checkRTP(1,1,"protects");
+				if(M) {
+					checkRTP(0,1,"moves");
+				}
+				if(slope!=null) {
+					if((slope.equals("right"))||(slope.equals("both"))) {
+						checkRTP(-1,1,"captures");
+					}
+					if((slope.equals("left"))||(slope.equals("both"))) {
+						checkRTP(1,1,"captures");
+					}
+				}
+				if(P) {
+					checkRTP(-1,1,"protects");
+					checkRTP(1,1,"protects");
+				}
 			}else {
-				checkRTP(0,2,"moves");
-				checkRTP(0,1,"moves");
-				checkRTP(-1,1,"captures");
-				checkRTP(1,1,"captures");
-				checkRTP(-1,1,"protects");
-				checkRTP(1,1,"protects");
+				if(M) {
+					if(pb[posX][posY+1]==null) {
+						checkRTP(0,2,"moves");
+					}
+					checkRTP(0,1,"moves");
+				}
+				if(slope!=null) {
+					if((slope.equals("right"))||(slope.equals("both"))) {
+						checkRTP(-1,1,"captures");
+					}
+					if((slope.equals("left"))||(slope.equals("both"))) {
+						checkRTP(1,1,"captures");
+					}
+				}
+				if(P) {
+					checkRTP(-1,1,"protects");
+					checkRTP(1,1,"protects");
+				}
 			}
 		}
 	}

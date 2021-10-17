@@ -32,6 +32,9 @@ public class PieceArrangeBoard {
 	private ArrayList<int[]> wControlRange = new ArrayList<int[]>();
 	private ArrayList<int[]> bControlRange = new ArrayList<int[]>();
 	
+	private ArrayList<int[]> wPControlRange = new ArrayList<int[]>();
+	private ArrayList<int[]> bPControlRange = new ArrayList<int[]>();
+	
 	private ArrayList<Piece> deliveringCheckList = new ArrayList<Piece>();
 	
 	
@@ -84,7 +87,7 @@ public class PieceArrangeBoard {
 					pieceList.add(pieceBoard[x][y]);
 					if(pieceBoard[x][y].getC().equals("w")) {
 						wPieces.add(pieceBoard[x][y]);
-					}else {
+					}else if(pieceBoard[x][y].getC().equals("b")){
 						bPieces.add(pieceBoard[x][y]);
 					}
 					if(pieceBoard[x][y].getId().equals("p")){
@@ -125,6 +128,8 @@ public class PieceArrangeBoard {
 		
 		ArrayList<int[]> wcr = new ArrayList<int[]>();
 		ArrayList<int[]> bcr = new ArrayList<int[]>();
+		ArrayList<int[]> wpcr = new ArrayList<int[]>();
+		ArrayList<int[]> bpcr = new ArrayList<int[]>();
 		ArrayList<Piece> dcl = new ArrayList<Piece>();
 		
 		int[] posW = new int[] {wKing.getPosX(),wKing.getPosY()};
@@ -133,25 +138,31 @@ public class PieceArrangeBoard {
 		//if(turn.equals("w")) {
 			for(Piece piece: wPieces) {
 				piece.setDeliveringCheck(false);
-				piece.checkProtects();
 				for(int[] pos:piece.getProtects()) {
+					//piece.checkProtects();
 					if(Arrays.equals(pos, posB)) {
 						piece.setDeliveringCheck(true);
 						dcl.add(piece);
-					}
-					
+					}	
 					if(!wcr.contains(pos)) {
 						wcr.add(pos);
 					}
 				}
-			setWControlRange(wcr);
+				
+				for(int[] pos:piece.getpProtects()) {				
+					if(!wpcr.contains(pos)) {
+						wpcr.add(pos);
+					}
+				}
+			wControlRange = wcr;
+			wPControlRange = wpcr;
 			}
 		//}
 		//if(turn.equals("b")) {
 			for(Piece piece: bPieces) {
 				piece.setDeliveringCheck(false);
-				piece.checkProtects();
 				for(int[] pos:piece.getProtects()) {
+					//piece.checkProtects();
 					if(Arrays.equals(pos, posW)) {
 						piece.setDeliveringCheck(true);
 						dcl.add(piece);
@@ -161,12 +172,19 @@ public class PieceArrangeBoard {
 						bcr.add(pos);
 					}
 				}
-			setBControlRange(bcr);
+				for(int[] pos:piece.getpProtects()) {					
+					if(!bpcr.contains(pos)) {
+						bpcr.add(pos);
+					}
+				}
+				bControlRange = bcr;
+				bPControlRange = bpcr;
 			}
 		//}
 		
 		deliveringCheckList = dcl;
 	}
+
 	
 	public King getWKing() {
 		return wKing;
@@ -201,7 +219,25 @@ public class PieceArrangeBoard {
 	public void setBControlRange(ArrayList<int[]> bControlRange) {
 		this.bControlRange = bControlRange;
 	}
+	
+	
 
+
+	public ArrayList<int[]> getbControlRange() {
+		return bControlRange;
+	}
+
+	public void setbControlRange(ArrayList<int[]> bControlRange) {
+		this.bControlRange = bControlRange;
+	}
+
+	public ArrayList<int[]> getwPControlRange() {
+		return wPControlRange;
+	}
+
+	public void setwPControlRange(ArrayList<int[]> wPControlRange) {
+		this.wPControlRange = wPControlRange;
+	}
 
 	public ArrayList<Piece> getDeliveringCheckList() {
 		return deliveringCheckList;
@@ -217,7 +253,11 @@ public class PieceArrangeBoard {
 	
 	
 	
+	
+	
 	public int getSize() {
 		return size;
 	}
+	
+	
 }

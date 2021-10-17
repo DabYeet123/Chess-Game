@@ -31,23 +31,29 @@ public class Rook extends Piece {
 	
 	
 	@Override
-	public void checkMoves(boolean block) {
+	public void checkMoves() {
+		
 		movables = new ArrayList<int[]>();
 		capturables = new ArrayList<int[]>();
-		protects = new ArrayList<int[]>();
-		checkHorizontal(0,true,true,false);
-		checkVertical(0,true,true,false);
-		
-		if(block) {
-			checkBlocks();
+		if(!isPinned) {
+
+			checkHorizontal(0,true,true,false,false);
+			checkVertical(0,true,true,false,false);
+			
+		}else if(restricted.equals("H")) {
+			checkHorizontal(0,true,true,false,false);
+		}else if(restricted.equals("V")) {
+			checkVertical(0,true,true,false,false);
 		}
 	}
 	
 	public void checkProtects() {
 		protects = new ArrayList<int[]>();
+		pProtects = new ArrayList<int[]>();
+		kingRestricts = new ArrayList<int[]>();
 		
-		checkHorizontal(0,false,false,true);
-		checkVertical(0,false,false,true);
+		checkHorizontal(0,false,false,true,true);
+		checkVertical(0,false,false,true,true);
 	}
 
 }
