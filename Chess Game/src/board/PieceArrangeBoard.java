@@ -223,12 +223,12 @@ public class PieceArrangeBoard {
 	
 
 
-	public ArrayList<int[]> getbControlRange() {
-		return bControlRange;
+	public ArrayList<int[]> getbPControlRange() {
+		return bPControlRange;
 	}
 
-	public void setbControlRange(ArrayList<int[]> bControlRange) {
-		this.bControlRange = bControlRange;
+	public void setbPControlRange(ArrayList<int[]> bPControlRange) {
+		this.bPControlRange = bPControlRange;
 	}
 
 	public ArrayList<int[]> getwPControlRange() {

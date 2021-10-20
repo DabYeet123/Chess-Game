@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 
 import board.PieceArrangeBoard;
+import gfx.Assets;
 import maingame.Handler;
 
 public abstract class Piece {
@@ -180,11 +181,13 @@ public abstract class Piece {
 				pos[0] = x;
 				pos[1] = y;
 				if(pieceBlocking!=null) {
-					if((pb[x][y].getId().equals("k"))&&(!c.equals(pb[x][y].getC()))) {//Set Pins
-						pieceBlocking.isPinned = true;
-						pieceBlocking.restricted = pieceBlockType;
-						//System.out.println(pieceBlocking.isPinned+pieceBlocking.restricted);
-						//System.out.println(pieceBlocking);
+					if(pieceBlocking.c.equals(pb[x][y].c)) {
+						if((pb[x][y].getId().equals("k"))&&(!c.equals(pb[x][y].getC()))) {//Set Pins
+							pieceBlocking.isPinned = true;
+							pieceBlocking.restricted = pieceBlockType;
+							//System.out.println(pieceBlocking.isPinned+pieceBlocking.restricted);
+							//System.out.println(pieceBlocking);
+						}
 					}
 				}
 				isBreak2 = true;
@@ -211,6 +214,12 @@ public abstract class Piece {
 				pawn.hasMoved = true;
 				pawn.timesPassed += 1;
 			}
+		}else if(p.getId().equals("r")) {
+			Rook rook = (Rook)p;
+			rook.hasMoved = true;
+		}else if(p.getId().equals("k")) {
+			King king = (King)p;
+			king.hasMoved = true;
 		}
 		
 		
@@ -228,17 +237,46 @@ public abstract class Piece {
 		update();
 	}*/
 	
-	public void enPassant(int x, int y) {
-		if(c.equals("w")) {
-			handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
-			handler.getPieceArrangeBoard().getPieceBoard()[x][y+1] = null;
-		}else if(c.equals("b")) {
-			handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
-			handler.getPieceArrangeBoard().getPieceBoard()[x][y-1] = null;
+	public void setTo(String type) {
+		Piece[][] pieceBoard = handler.getPieceArrangeBoard().getPieceBoard();
+		if(pieceBoard[posX][posY].getC().equals("w")) {
+			handler.getPieceArrangeBoard().getWPieces().remove(pieceBoard[posX][posY]);
+		}else if(pieceBoard[posX][posY].getC().equals("b")) {
+			handler.getPieceArrangeBoard().getBPieces().remove(pieceBoard[posX][posY]);
 		}
-		setPosX(x);
-		setPosY(y);
-		update();
+		handler.getPieceArrangeBoard().getPieceList().remove(pieceBoard[posX][posY]);
+		handler.getPieceArrangeBoard().getPawnPieces().remove(pieceBoard[posX][posY]);
+		
+		if(c.equals("w")) {
+			if(type.equals("q")) {
+				pieceBoard[posX][posY] = new Queen(handler,posX,posY,size,"q",c,Assets.w_queen);;
+			}else if(type.equals("b")) {
+				pieceBoard[posX][posY] = new Bishop(handler,posX,posY,size,"b",c,Assets.w_bishop);
+			}else if(type.equals("n")) {
+				pieceBoard[posX][posY] = new Knight(handler,posX,posY,size,"n",c,Assets.w_knight);
+			}else if(type.equals("r")) {
+				pieceBoard[posX][posY] = new Rook(handler,posX,posY,size,"r",c,Assets.w_rook);
+			}
+			handler.getPieceArrangeBoard().getWPieces().add(pieceBoard[posX][posY]);
+			handler.getPieceArrangeBoard().getPieceList().add(pieceBoard[posX][posY]);
+		}else if(c.equals("b")) {
+			if(type.equals("q")) {
+				pieceBoard[posX][posY] = new Queen(handler,posX,posY,size,"q",c,Assets.b_queen);;
+			}else if(type.equals("b")) {
+				pieceBoard[posX][posY] = new Bishop(handler,posX,posY,size,"b",c,Assets.b_bishop);
+			}else if(type.equals("n")) {
+				pieceBoard[posX][posY] = new Knight(handler,posX,posY,size,"n",c,Assets.b_knight);
+			}else if(type.equals("r")) {
+				pieceBoard[posX][posY] = new Rook(handler,posX,posY,size,"r",c,Assets.b_rook);
+			}
+			handler.getPieceArrangeBoard().getBPieces().add(pieceBoard[posX][posY]);
+			handler.getPieceArrangeBoard().getPieceList().add(pieceBoard[posX][posY]);
+		}
+		
+		handler.getGame().getGameState().resetUI();
+		handler.getMouseManager().getSelector().setPromoting(false);
+		handler.getMouseManager().getSelector().turnUpdate();
+		handler.getMouseManager().getSelector().highlightUpdate();
 	}
 	
 	

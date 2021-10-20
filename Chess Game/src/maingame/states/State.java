@@ -30,6 +30,8 @@ public abstract class State {
 	public abstract void render(Graphics g);
 	
 	public abstract void Init();
+	
+	public abstract void resetUI();
 		
 
 }

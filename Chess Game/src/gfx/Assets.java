@@ -9,6 +9,10 @@ public class Assets {
 	public static BufferedImage w_king,w_queen,w_bishop,w_knight,w_rook,w_pawn;
 	public static BufferedImage b_king,b_queen,b_bishop,b_knight,b_rook,b_pawn;
 	public static BufferedImage[] btn_start;
+	public static BufferedImage[] btn_queen = new BufferedImage[2];
+	public static BufferedImage[] btn_bishop = new BufferedImage[2];
+	public static BufferedImage[] btn_knight = new BufferedImage[2];
+	public static BufferedImage[] btn_rook = new BufferedImage[2];
 	
 	public static void init() {
 		SpriteSheet sheet = new SpriteSheet(ImageLoader.loadImage("/textures/chess_sprite_sheet(64x).png"));
@@ -32,6 +36,21 @@ public class Assets {
 		btn_start = new BufferedImage[2];
 		btn_start[0] = b_king;
 		btn_start[1] = w_king;
+		
+		btn_queen[0] = w_queen;
+		btn_queen[1] = b_queen;
+		
+		btn_bishop[0] = w_bishop;
+		btn_bishop[1] = b_bishop;
+		
+		btn_knight[0] = w_knight;
+		btn_knight[1] = b_knight;
+		
+		btn_rook[0] = w_rook;
+		btn_rook[1] = b_rook;
+		
+		
+		
 
 	}
 

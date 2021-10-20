@@ -56,4 +56,16 @@ public class Rook extends Piece {
 		checkVertical(0,false,false,true,true);
 	}
 
+
+	public boolean isHasMoved() {
+		return hasMoved;
+	}
+
+
+	public void setHasMoved(boolean hasMoved) {
+		this.hasMoved = hasMoved;
+	}
+	
+	
+
 }

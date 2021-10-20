@@ -148,6 +148,10 @@ public class Game implements Runnable {
 		return mouseManager;
 	}
 	
+	public State getGameState() {
+		return gameState;
+	}
+	
 
 	
 	public int getWidth() {

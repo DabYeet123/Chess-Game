@@ -21,6 +21,7 @@ public class Selector {
 	private Piece pieceSelected = null;
 	private String turn = "w";
 	private boolean controlHighlightOn = true;
+	private boolean promoting = false;
 	
 	public Selector(Handler handler) {
 		this.handler = handler;
@@ -40,11 +41,29 @@ public class Selector {
 		//Moving and Capturing
 		if(pieceSelected != null) {
 			for(int[] pos:pieceSelected.getMovables()) {
-				if(Arrays.equals(pos, new int[]{x,y})) {					
+				if(Arrays.equals(pos, new int[]{x,y})) {
+					if(pieceSelected.getId().equals("k")) {
+						King k = (King)pieceSelected;
+						if(k.getShortCastle() == pos) {
+							k.shortCastle();
+							turnUpdate();
+							highlightUpdate();
+							return;
+						}else if(k.getLongCastle() == pos) {
+							k.longCastle();
+							turnUpdate();
+							highlightUpdate();
+							return;
+						}
+					}
 					pieceSelected.moveTo(x,y);
-					turnUpdate();
-					highlightUpdate();
+					checkForPromotes();
+					if(!promoting) {
+						turnUpdate();
+						highlightUpdate();
+					}
 					return;
+					
 				}
 			}
 			for(int[] pos:pieceSelected.getCapturables()) {
@@ -59,8 +78,11 @@ public class Selector {
 						}
 					}
 					pieceSelected.moveTo(x,y);
-					turnUpdate();
-					highlightUpdate();
+					checkForPromotes();
+					if(!promoting) {
+						turnUpdate();
+						highlightUpdate();
+					}
 					return;
 				}
 			}
@@ -267,6 +289,12 @@ public class Selector {
 		}
 	}
 	
+	public void checkForPromotes() {
+		for(Pawn pawn:handler.getPieceArrangeBoard().getPawnPieces()) {
+			pawn.promotionCheck();
+		}
+	}
+	
 
 		
 	
@@ -306,6 +334,20 @@ public class Selector {
 	public void setControlHighlightOn(boolean controlHighlightOn) {
 		this.controlHighlightOn = controlHighlightOn;
 	}
+
+
+	public boolean isPromoting() {
+		return promoting;
+	}
+
+
+	public void setPromoting(boolean promoting) {
+		this.promoting = promoting;
+	}
+
+	
+	
+	
 	
 	
 }

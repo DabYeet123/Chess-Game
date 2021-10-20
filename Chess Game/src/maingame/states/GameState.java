@@ -31,8 +31,8 @@ public class GameState extends State{
 		backgroundBoard = new BackgroundBoard(handler,8,8,64);
 		handler.setBackgroungBoard(backgroundBoard);
 		
-		//pieceBoard = new PieceArrangeBoard(handler,"/saves/test.txt");
-		pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
+		pieceBoard = new PieceArrangeBoard(handler,"/saves/test.txt");
+		//pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
 		handler.setPieceArrangeBoard(pieceBoard);
 		
 		highlightBoard = new HighlightBoard(handler, 8, 8, 64);
@@ -70,7 +70,7 @@ public class GameState extends State{
 	public void Init() {
 		uiManager = new UIManager(handler);
 		handler.getMouseManager().setUIManager(uiManager);
-		uiManager.addObject(new UIImageButton(544,256,64,64,Assets.btn_start,new ClickListener() {
+		uiManager.addObject(new UIImageButton(544,256,64,64,Assets.btn_start,0,1,null,null,new ClickListener() {
 
 			@Override
 			public void onClick() {
@@ -89,6 +89,24 @@ public class GameState extends State{
 			piece.checkMoves();
 			handler.getPieceArrangeBoard().controlRangeUpdate();
 		}
+	}
+	
+	public void resetUI() {
+		uiManager = new UIManager(handler);
+		handler.getMouseManager().setUIManager(uiManager);
+		uiManager.addObject(new UIImageButton(544,256,64,64,Assets.btn_start,0,1,null,null,new ClickListener() {
+
+			@Override
+			public void onClick() {
+				if(!handler.getMouseManager().getSelector().isControlHighlightOn()) {
+					handler.getMouseManager().getSelector().setControlHighlightOn(true);
+				}else {
+					handler.getMouseManager().getSelector().setControlHighlightOn(false);
+					handler.getMouseManager().getSelector().controlledHighlightUpdate();
+				}
+			}
+			
+			}));
 	}
 	
 

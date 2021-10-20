@@ -1,16 +1,27 @@
 package pieces;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import board.Square;
+import gfx.Assets;
 import maingame.Handler;
+import ui.ClickListener;
+import ui.UIImageButton;
+import ui.UIManager;
 
 public class Pawn extends Piece {
 	
 	protected boolean hasMoved;
 	protected int timesPassed;
 	protected int[] enPassant;
+	
+	public static UIImageButton queen;
+	public UIImageButton bishop;
+	public UIImageButton knight;
+	public UIImageButton rook;
 	
 	public Pawn(Handler handler, int posX, int posY, int size,String id,String c,BufferedImage texture) {
 			super(handler, posX, posY, size,id,c,texture);
@@ -67,23 +78,7 @@ public class Pawn extends Piece {
 		Piece[][] pb = handler.getPieceArrangeBoard().getPieceBoard();
 
 		if(c.equals("w")) {
-			if(hasMoved) {
-				if(M) {
-					checkRTP(0,-1,"moves");
-					}
-				if(slope!=null) {
-					if((slope.equals("left"))||(slope.equals("both"))) {
-						checkRTP(-1,-1,"captures");
-					}
-					if((slope.equals("right"))||(slope.equals("both"))) {
-						checkRTP(1,-1,"captures");
-					}
-				}
-				if(P) {
-					checkRTP(-1,-1,"protects");
-					checkRTP(1,-1,"protects");
-				}
-			}else {
+			if(!hasMoved&&posY == 6) {
 				if(M) {
 					if(pb[posX][posY-1]==null) {
 						checkRTP(0,-2,"moves");
@@ -102,11 +97,30 @@ public class Pawn extends Piece {
 					checkRTP(-1,-1,"protects");
 					checkRTP(1,-1,"protects");
 				}
+			}else {
+				if(M) {
+					checkRTP(0,-1,"moves");
+					}
+				if(slope!=null) {
+					if((slope.equals("left"))||(slope.equals("both"))) {
+						checkRTP(-1,-1,"captures");
+					}
+					if((slope.equals("right"))||(slope.equals("both"))) {
+						checkRTP(1,-1,"captures");
+					}
+				}
+				if(P) {
+					checkRTP(-1,-1,"protects");
+					checkRTP(1,-1,"protects");
+				}
 			}
 			
 		}else if(c.equals("b")){
-			if(hasMoved) {
+			if(!hasMoved&&posY == 1) {
 				if(M) {
+					if(pb[posX][posY+1]==null) {
+						checkRTP(0,2,"moves");
+					}
 					checkRTP(0,1,"moves");
 				}
 				if(slope!=null) {
@@ -123,9 +137,6 @@ public class Pawn extends Piece {
 				}
 			}else {
 				if(M) {
-					if(pb[posX][posY+1]==null) {
-						checkRTP(0,2,"moves");
-					}
 					checkRTP(0,1,"moves");
 				}
 				if(slope!=null) {
@@ -185,6 +196,88 @@ public class Pawn extends Piece {
 	}
 	
 	
+	public void promotionCheck() {
+		if(c.equals("w")) {
+			if(posY == 0) {
+				handler.getMouseManager().getSelector().setPromoting(true);
+				promote();
+			}
+		}else if(c.equals("b")) {
+			if(posY == 7) {
+				handler.getMouseManager().getSelector().setPromoting(true);
+				promote();
+			}
+		}
+	}
+	
+	public void enPassant(int x, int y) {
+		if(c.equals("w")) {
+			handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
+			handler.getPieceArrangeBoard().getPieceBoard()[x][y+1] = null;
+		}else if(c.equals("b")) {
+			handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
+			handler.getPieceArrangeBoard().getPieceBoard()[x][y-1] = null;
+		}
+		setPosX(x);
+		setPosY(y);
+		update();
+	}
+	
+	public void promote() {
+		UIManager uiManager = handler.getMouseManager().getUIManager();
+		int pc = 0;
+		int b = 0;
+		int n = 0;
+		int r = 0;
+		if(c.equals("w")) {
+			pc = 0;
+			b = 1;
+			n = 2;
+			r = 3;
+		}else if(c.equals("b")) {
+			pc = 1;
+			b = -1;
+			n = -2;
+			r = -3;
+		}
+		
+		Color hovered = new Color(23,52,200);
+		Color notHovered = new Color(12,69,10);
+		
+		
+		queen = new UIImageButton(pixX,pixY,64,64,Assets.btn_queen,pc,pc,notHovered,hovered,new ClickListener() {
+			@Override
+			public void onClick() {
+				setTo("q");
+			}
+			});
+		bishop = new UIImageButton((posX)*size,(posY+b)*size,64,64,Assets.btn_bishop,pc,pc,notHovered,hovered,new ClickListener() {
+			@Override
+			public void onClick() {
+				setTo("b");
+			}
+			});
+		knight = new UIImageButton((posX)*size,(posY+n)*size,64,64,Assets.btn_knight,pc,pc,notHovered,hovered,new ClickListener() {
+			@Override
+			public void onClick() {
+				setTo("n");
+			}
+			});
+		rook = new UIImageButton((posX)*size,(posY+r)*size,64,64,Assets.btn_rook,pc,pc,notHovered,hovered,new ClickListener() {
+			@Override
+			public void onClick() {
+				setTo("r");
+			}
+			});
+		
+		
+		
+		
+		uiManager.addObject(queen);
+		uiManager.addObject(bishop);
+		uiManager.addObject(knight);
+		uiManager.addObject(rook);
+	}
 
 
 	public boolean isHasMoved() {
