@@ -1,6 +1,7 @@
 package maingame.states;
 
 import java.awt.Graphics;
+import java.io.IOException;
 
 import board.BackgroundBoard;
 import board.HighlightBoard;
@@ -31,8 +32,8 @@ public class GameState extends State{
 		backgroundBoard = new BackgroundBoard(handler,8,8,64);
 		handler.setBackgroungBoard(backgroundBoard);
 		
-		pieceBoard = new PieceArrangeBoard(handler,"/saves/test.txt");
-		//pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
+		//pieceBoard = new PieceArrangeBoard(handler,"/saves/test.txt");
+		pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
 		handler.setPieceArrangeBoard(pieceBoard);
 		
 		highlightBoard = new HighlightBoard(handler, 8, 8, 64);
@@ -52,7 +53,17 @@ public class GameState extends State{
 	@Override
 	public void tick() {
 		uiManager.tick();
-
+		if(handler.isConnected()) {
+			if((handler.getMouseManager().getSelector().getTurn().equals("w") && handler.getColor() != 'w')||
+				(handler.getMouseManager().getSelector().getTurn().equals("b") && handler.getColor() != 'b')) {
+				try {
+					int intData = handler.getIPS().readInt();
+					handler.getMouseManager().getSelector().turnUpdate(Integer.toString(intData));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
 		
 	}
@@ -83,12 +94,6 @@ public class GameState extends State{
 			}
 			
 			}));
-		
-		for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
-			piece.checkProtects();
-			piece.checkMoves();
-			handler.getPieceArrangeBoard().controlRangeUpdate();
-		}
 	}
 	
 	public void resetUI() {
@@ -107,6 +112,16 @@ public class GameState extends State{
 			}
 			
 			}));
+	}
+	
+	public void reloadBoard() {
+		pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
+		handler.setPieceArrangeBoard(pieceBoard);
+		for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
+			piece.checkProtects();
+			piece.checkMoves();
+			handler.getPieceArrangeBoard().controlRangeUpdate();
+		}
 	}
 	
 

@@ -11,9 +11,12 @@ public class King extends Piece {
 	
 	protected boolean hasMoved;
 	protected boolean inCheck;
+	protected String facing;
 	private ArrayList<int[]> kingProtects;
 	private int[] shortCastle;
 	private int[] longCastle;
+	private Rook shortCastleRook;
+	private Rook longCastleRook;
 	
 	public King(Handler handler, int posX, int posY, int size,String id,String c,BufferedImage texture) {
 			super(handler, posX, posY, size,id,c,texture);
@@ -22,7 +25,19 @@ public class King extends Piece {
 			inCheck = false;
 			shortCastle = null;
 			longCastle = null;
-		
+			if(handler.getPieceArrangeBoard().isWhiteOnTop()) {
+				if(c.equals("w")) {
+					facing = "d";
+				}else if(c.equals("b")) {
+					facing = "u";
+				}
+			}else if(!handler.getPieceArrangeBoard().isWhiteOnTop()) {
+				if(c.equals("w")) {
+					facing = "u";
+				}else if(c.equals("b")) {
+					facing = "d";
+				}
+			}
 	}
 
 
@@ -140,28 +155,53 @@ public class King extends Piece {
 			ArrayList<int[]> controlRange = null;
 			int rowCheck = -1;
 			
+			int[] longList = null;
+			int[] shortList = null;
+			int shortRook = -1;
+			int longRook = -1;
+			
 			if(c.equals("w")) {
 				controlRange = handler.getPieceArrangeBoard().getBControlRange();
-				rowCheck = 7;
 			}else if(c.equals("b")) {
 				controlRange = handler.getPieceArrangeBoard().getWControlRange();
+			}
+			
+			if(facing.equals("u")) {
+				rowCheck = 7;
+			}else if(facing.equals("d")) {
 				rowCheck = 0;
 			}
+			
+			if(handler.getPieceArrangeBoard().isWhiteOnTop()) {
+				longList = new int[] {4,5,6};
+				shortList = new int[] {1,2};
+				longRook = 7;
+				shortRook = 0;
+			}else {
+				longList = new int[] {1,2,3};
+				shortList = new int[] {6,5};
+				longRook = 0;
+				shortRook = 7;
+			}
 				
-			if(pb[0][rowCheck]!=null) {
-				if(pb[0][rowCheck].id.equals("r")) {
-					Rook rook = (Rook)pb[0][rowCheck];
+			if(pb[longRook][rowCheck]!=null) {
+				if(pb[longRook][rowCheck].id.equals("r")) {
+					int l1 = longList[0];
+					int l2 = longList[1];
+					int l3 = longList[2];
+					Rook rook = (Rook)pb[longRook][rowCheck];
 					if(!rook.isHasMoved()) {
-						if((pb[1][rowCheck]==null)&&(pb[2][rowCheck]==null)&&(pb[3][rowCheck]==null)) {
+						if((pb[l1][rowCheck]==null)&&(pb[l2][rowCheck]==null)&&(pb[l3][rowCheck]==null)) {
 							for(int[] con:controlRange) {
-								if((Arrays.equals(con, new int[] {1,rowCheck}))||(Arrays.equals(con, new int[] {2,rowCheck}))||(Arrays.equals(con, new int[] {3,rowCheck}))) {
+								if((Arrays.equals(con, new int[] {l1,rowCheck}))||(Arrays.equals(con, new int[] {l2,rowCheck}))||(Arrays.equals(con, new int[] {l3,rowCheck}))) {
 									canCastle = false;
 									break;
 								}
 							}
 							if(canCastle) {
-								longCastle = new int[] {2,rowCheck};
+								longCastle = new int[] {l2,rowCheck};
 								movables.add(longCastle);
+								longCastleRook = rook;
 							}else {
 								longCastle = null;
 							}
@@ -169,20 +209,23 @@ public class King extends Piece {
 					}
 				}
 			}
-			if(pb[7][rowCheck]!= null) {
-				if(pb[7][rowCheck].id.equals("r")) {
-					Rook rook = (Rook)pb[7][rowCheck];
+			if(pb[shortRook][rowCheck]!= null) {
+				if(pb[shortRook][rowCheck].id.equals("r")) {
+					int s1 = shortList[0];
+					int s2 = shortList[1];
+					Rook rook = (Rook)pb[shortRook][rowCheck];
 					if(!rook.isHasMoved()) {
-						if((pb[5][rowCheck]==null)&&(pb[6][rowCheck]==null)) {
+						if((pb[s1][rowCheck]==null)&&(pb[s2][rowCheck]==null)) {
 							for(int[] con:controlRange) {
-								if((Arrays.equals(con, new int[] {5,rowCheck}))||(Arrays.equals(con, new int[] {6,rowCheck}))) {
+								if((Arrays.equals(con, new int[] {s1,rowCheck}))||(Arrays.equals(con, new int[] {s2,rowCheck}))) {
 									canCastle = false;
 									break;
 								}
 							}
 							if(canCastle) {
-								shortCastle = new int[] {6,rowCheck};
+								shortCastle = new int[] {s1,rowCheck};
 								movables.add(shortCastle);
+								shortCastleRook = rook;
 							}else {
 								shortCastle = null;
 							}
@@ -196,25 +239,23 @@ public class King extends Piece {
 	public void shortCastle() {
 		if(shortCastle!=null) {
 			Piece[][] pb = handler.getPieceArrangeBoard().getPieceBoard();
-			if(c.equals("w")) {
-				moveTo(shortCastle[0],shortCastle[1]);
-				pb[7][7].moveTo(5, 7);
-			}else if(c.equals("b")) {
-				moveTo(shortCastle[0],shortCastle[1]);
-				pb[7][0].moveTo(5, 0);
-			}		
+			moveTo(shortCastle[0],shortCastle[1]);
+			if(handler.getPieceArrangeBoard().isWhiteOnTop()) {
+				shortCastleRook.moveTo(2, shortCastle[1]);
+			}else {
+				shortCastleRook.moveTo(5, shortCastle[1]);
+			}
 		}
 	}
 	
 	public void longCastle() {
 		if(longCastle!=null) {
 			Piece[][] pb = handler.getPieceArrangeBoard().getPieceBoard();
-			if(c.equals("w")) {
-				moveTo(longCastle[0],longCastle[1]);
-				pb[0][7].moveTo(3, 7);
-			}else if(c.equals("b")) {
-				moveTo(longCastle[0],longCastle[1]);
-				pb[0][0].moveTo(3, 0);
+			moveTo(longCastle[0],longCastle[1]);
+			if(handler.getPieceArrangeBoard().isWhiteOnTop()) {
+				longCastleRook.moveTo(4, longCastle[1]);
+			}else {
+				longCastleRook.moveTo(3, longCastle[1]);
 			}		
 		}
 	}

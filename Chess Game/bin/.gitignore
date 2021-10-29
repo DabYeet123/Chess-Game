@@ -1,10 +1,6 @@
-/saves/
-/textures/
-/board/
+/multiplayer/
 /maingame/
-/utils/
-/gfx/
-/world1.txt
-/pieces/
 /selector/
-/ui/
+/board/
+/pieces/
+/saves/

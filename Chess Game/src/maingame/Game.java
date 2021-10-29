@@ -1,16 +1,12 @@
 package maingame;
 
-import java.awt.Color;
+
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 
-import board.BackgroundBoard;
-import board.PieceArrangeBoard;
+
 import display.Display;
 import gfx.Assets;
-import gfx.ImageLoader;
-import gfx.SpriteSheet;
 import input.KeyManager;
 import input.MouseManager;
 import maingame.states.GameState;
@@ -82,7 +78,7 @@ public class Game implements Runnable {
 	
 	
 	//Render//
-	private void render() {
+	public void render() {
 		bs = display.getCanvas().getBufferStrategy();
 		if(bs == null) {
 			display.getCanvas().createBufferStrategy(3);
@@ -135,7 +131,6 @@ public class Game implements Runnable {
 		}
 		
 		stop();
-		
 	}
 	
 
@@ -147,9 +142,14 @@ public class Game implements Runnable {
 	public MouseManager getMouseManager() {
 		return mouseManager;
 	}
+
 	
 	public State getGameState() {
 		return gameState;
+	}
+	
+	public Display getDisplay() {
+		return display;
 	}
 	
 

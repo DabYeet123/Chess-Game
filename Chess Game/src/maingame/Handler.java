@@ -1,6 +1,10 @@
 package maingame;
 
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+
 import board.BackgroundBoard;
 import board.HighlightBoard;
 import board.PieceArrangeBoard;
@@ -14,6 +18,10 @@ public class Handler {
 	private BackgroundBoard backgroungBoard;
 	private PieceArrangeBoard pieceArrangeBoard;
 	private HighlightBoard highlightBoard;
+	private DataInputStream in;
+	private DataOutputStream out;
+	private boolean connected;
+	private char color;
 	
 	public Handler(Game game) {
 		this.game = game;
@@ -68,6 +76,42 @@ public class Handler {
 	public void setGame(Game game) {
 		this.game = game;
 	}
+
+	public DataInputStream getIPS() {
+		return in;
+	}
+
+	public void setIPS(DataInputStream in) {
+		this.in = in;
+	}
+
+	public DataOutputStream getOPS() {
+		return out;
+	}
+
+	public void setOPS(DataOutputStream out) {
+		this.out = out;
+	}
+
+	public boolean isConnected() {
+		return connected;
+	}
+
+	public void setConnected(boolean connected) {
+		this.connected = connected;
+	}
+
+	public char getColor() {
+		return color;
+	}
+
+	public void setColor(char color) {
+		this.color = color;
+	}
+
+	
+	
+	
 
 
 }

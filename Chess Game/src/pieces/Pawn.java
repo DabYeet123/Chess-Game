@@ -17,8 +17,9 @@ public class Pawn extends Piece {
 	protected boolean hasMoved;
 	protected int timesPassed;
 	protected int[] enPassant;
+	protected String facing;
 	
-	public static UIImageButton queen;
+	public UIImageButton queen;
 	public UIImageButton bishop;
 	public UIImageButton knight;
 	public UIImageButton rook;
@@ -29,6 +30,19 @@ public class Pawn extends Piece {
 			hasMoved = false;
 			timesPassed = 0;
 			enPassant = null;
+			if(handler.getPieceArrangeBoard().isWhiteOnTop()) {
+				if(c.equals("w")) {
+					facing = "d";
+				}else if(c.equals("b")) {
+					facing = "u";
+				}
+			}else if(!handler.getPieceArrangeBoard().isWhiteOnTop()) {
+				if(c.equals("w")) {
+					facing = "u";
+				}else if(c.equals("b")) {
+					facing = "d";
+				}
+			}
 	}
 
 
@@ -77,7 +91,7 @@ public class Pawn extends Piece {
 	public void pawnMoveCheck(boolean M,String slope,boolean P) {
 		Piece[][] pb = handler.getPieceArrangeBoard().getPieceBoard();
 
-		if(c.equals("w")) {
+		if(facing.equals("u")) {
 			if(!hasMoved&&posY == 6) {
 				if(M) {
 					if(pb[posX][posY-1]==null) {
@@ -115,7 +129,7 @@ public class Pawn extends Piece {
 				}
 			}
 			
-		}else if(c.equals("b")){
+		}else if(facing.equals("d")){
 			if(!hasMoved&&posY == 1) {
 				if(M) {
 					if(pb[posX][posY+1]==null) {
@@ -170,7 +184,7 @@ public class Pawn extends Piece {
 					Piece piece = pb[checking[i]][y];
 					if(piece.getId().equals("p")) {
 						Pawn p = (Pawn)pb[checking[i]][y];
-						if(c.equals("w")) {
+						if(facing.equals("u")) {
 							if(posY == 3) {
 								if(((p.getId().equals(id))&&(!p.getC().equals(c)))&&
 										(p.getTimesPassed() == 1)) {
@@ -179,7 +193,7 @@ public class Pawn extends Piece {
 									enPassant = pos;
 								}
 							}
-						}else if(c.equals("b")) {
+						}else if(facing.equals("d")) {
 							if(posY == 4) {
 								if(((p.getId().equals(id))&&(!p.getC().equals(c)))&&
 										(p.getTimesPassed() == 1)) {
@@ -197,12 +211,12 @@ public class Pawn extends Piece {
 	
 	
 	public void promotionCheck() {
-		if(c.equals("w")) {
+		if(facing.equals("u")) {
 			if(posY == 0) {
 				handler.getMouseManager().getSelector().setPromoting(true);
 				promote();
 			}
-		}else if(c.equals("b")) {
+		}else if(facing.equals("d")) {
 			if(posY == 7) {
 				handler.getMouseManager().getSelector().setPromoting(true);
 				promote();
@@ -211,10 +225,10 @@ public class Pawn extends Piece {
 	}
 	
 	public void enPassant(int x, int y) {
-		if(c.equals("w")) {
+		if(facing.equals("u")) {
 			handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
 			handler.getPieceArrangeBoard().getPieceBoard()[x][y+1] = null;
-		}else if(c.equals("b")) {
+		}else if(facing.equals("d")) {
 			handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
 			handler.getPieceArrangeBoard().getPieceBoard()[x][y-1] = null;
 		}
@@ -229,12 +243,12 @@ public class Pawn extends Piece {
 		int b = 0;
 		int n = 0;
 		int r = 0;
-		if(c.equals("w")) {
+		if(facing.equals("u")) {
 			pc = 0;
 			b = 1;
 			n = 2;
 			r = 3;
-		}else if(c.equals("b")) {
+		}else if(facing.equals("d")) {
 			pc = 1;
 			b = -1;
 			n = -2;
@@ -307,6 +321,16 @@ public class Pawn extends Piece {
 
 	public void setEnPassant(int[] enPassant) {
 		this.enPassant = enPassant;
+	}
+
+
+	public String getFacing() {
+		return facing;
+	}
+
+
+	public void setFacing(String facing) {
+		this.facing = facing;
 	}
 	
 	

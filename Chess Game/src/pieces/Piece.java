@@ -275,7 +275,7 @@ public abstract class Piece {
 		
 		handler.getGame().getGameState().resetUI();
 		handler.getMouseManager().getSelector().setPromoting(false);
-		handler.getMouseManager().getSelector().turnUpdate();
+		handler.getMouseManager().getSelector().turnUpdate(null);
 		handler.getMouseManager().getSelector().highlightUpdate();
 	}
 	
@@ -815,9 +815,17 @@ public abstract class Piece {
 	public void setKingRestricts(ArrayList<int[]> kingRestricts) {
 		this.kingRestricts = kingRestricts;
 	}
-	
-	
 
+	public int[] getPos() {
+		return pos;
+	}
+
+	public void setPos(int[] pos) {
+		this.pos = pos;
+	}
+	
+	
+	
 
 
 

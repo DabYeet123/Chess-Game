@@ -8,11 +8,14 @@ public class Assets {
 	
 	public static BufferedImage w_king,w_queen,w_bishop,w_knight,w_rook,w_pawn;
 	public static BufferedImage b_king,b_queen,b_bishop,b_knight,b_rook,b_pawn;
+	public static BufferedImage server,client;
 	public static BufferedImage[] btn_start;
 	public static BufferedImage[] btn_queen = new BufferedImage[2];
 	public static BufferedImage[] btn_bishop = new BufferedImage[2];
 	public static BufferedImage[] btn_knight = new BufferedImage[2];
 	public static BufferedImage[] btn_rook = new BufferedImage[2];
+	public static BufferedImage[] btn_server = new BufferedImage[2];
+	public static BufferedImage[] btn_client = new BufferedImage[2];
 	
 	public static void init() {
 		SpriteSheet sheet = new SpriteSheet(ImageLoader.loadImage("/textures/chess_sprite_sheet(64x).png"));
@@ -32,6 +35,9 @@ public class Assets {
 		b_knight = sheet.crop(3*width, height, width, height);
 		b_rook = sheet.crop(4*width, height, width, height);
 		b_pawn = sheet.crop(5*width, height, width, height);
+		
+		server = ImageLoader.loadImage("/textures/s.jpg");
+		client = ImageLoader.loadImage("/textures/client.png");
 
 		btn_start = new BufferedImage[2];
 		btn_start[0] = b_king;
@@ -49,7 +55,11 @@ public class Assets {
 		btn_rook[0] = w_rook;
 		btn_rook[1] = b_rook;
 		
+		btn_server[0] = server;
+		btn_server[1] = server;
 		
+		btn_client[0] = client;
+		btn_client[1] = client;
 		
 
 	}

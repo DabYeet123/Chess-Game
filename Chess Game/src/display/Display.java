@@ -1,9 +1,13 @@
 package display;
 
+import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 public class Display {
 	
@@ -37,6 +41,7 @@ public class Display {
 		
 		frame.add(canvas);
 		frame.pack();
+
 	}
 	
 	public Canvas getCanvas() {

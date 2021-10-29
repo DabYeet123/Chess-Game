@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -19,8 +20,12 @@ public class Selector {
 	
 	private Handler handler;
 	private Piece pieceSelected = null;
+	private int[] originalPos;
+	private int[] movedTo;
+	private String action;
+	
 	private String turn = "w";
-	private boolean controlHighlightOn = true;
+	private boolean controlHighlightOn = false;
 	private boolean promoting = false;
 	
 	public Selector(Handler handler) {
@@ -35,6 +40,25 @@ public class Selector {
 	public void onMouseClicked(MouseEvent e) {
 		Piece[][] pb = handler.getPieceArrangeBoard().getPieceBoard();
 		
+		/*int x = -1;
+		int y = -1;
+		int ex = -1;
+		int ey = -1;
+		
+		if(handler.getColor()=='w') {
+			x = e.getX()/64;
+			y = e.getY()/64;
+			ex = e.getX();
+			ey = e.getY();
+		}else if(handler.getColor()=='b') {
+			x = 7-e.getX()/64;
+			y = 7-e.getY()/64;
+			ex = 512-e.getX();
+			ey = 512-e.getY();
+		}
+		System.out.println(x+" "+y);
+		System.out.println(ex+" "+ey);*/
+		
 		int x = e.getX()/64;
 		int y = e.getY()/64;
 		
@@ -46,21 +70,29 @@ public class Selector {
 						King k = (King)pieceSelected;
 						if(k.getShortCastle() == pos) {
 							k.shortCastle();
-							turnUpdate();
+							movedTo = pos;
+							action = "shortcastle";
+							turnUpdate(null);
 							highlightUpdate();
 							return;
 						}else if(k.getLongCastle() == pos) {
 							k.longCastle();
-							turnUpdate();
+							movedTo = pos;
+							action = "longcastle";
+							turnUpdate(null);
 							highlightUpdate();
 							return;
 						}
 					}
 					pieceSelected.moveTo(x,y);
+					movedTo = pos;
+					action = "moved";
 					checkForPromotes();
+					if(promoting) {
+						action = "promoted";
+					}
 					if(!promoting) {
-						turnUpdate();
-						highlightUpdate();
+						turnUpdate(null);
 					}
 					return;
 					
@@ -72,16 +104,21 @@ public class Selector {
 						Pawn p = (Pawn)pieceSelected;
 						if(p.getEnPassant() == pos) {
 							p.enPassant(pos[0],pos[1]);
-							turnUpdate();
-							highlightUpdate();
+							movedTo = pos;
+							action = "captured";
+							turnUpdate(null);
 							return;
 						}
 					}
 					pieceSelected.moveTo(x,y);
+					movedTo = pos;
+					action = "captured";
 					checkForPromotes();
+					if(promoting) {
+						action = "promoted";
+					}
 					if(!promoting) {
-						turnUpdate();
-						highlightUpdate();
+						turnUpdate(null);
 					}
 					return;
 				}
@@ -97,14 +134,23 @@ public class Selector {
 		//Selecting Piece
 		if(Piece.inRange(x,y)) {
 			if(pb[x][y] != null) {
-				if(((turn.equals("w"))&&(pb[x][y].getC().equals("w"))) || 
-						((turn.equals("b"))&&(pb[x][y].getC().equals("b")))) {
+				if(((turn.equals("w"))&&(pb[x][y].getC().equals("w"))&&(handler.getColor()=='w')) || 
+						((turn.equals("b"))&&(pb[x][y].getC().equals("b")&&(handler.getColor()=='b')))) {
 					if(pb[x][y].getBounds().contains(e.getX(),e.getY())) {
 						pieceSelected = pb[x][y];
+						originalPos = new int[] {x,y};
 					}
+				}else if(!handler.isConnected()){
+					if(((turn.equals("w"))&&(pb[x][y].getC().equals("w")))|| 
+						((turn.equals("b"))&&(pb[x][y].getC().equals("b")))) {
+						if(pb[x][y].getBounds().contains(e.getX(),e.getY())) {
+							pieceSelected = pb[x][y];
+						}
+					}
+							
 				}else {
 						pieceSelected = null;
-					}
+				}				
 			}else {
 				pieceSelected = null;
 			}
@@ -198,7 +244,42 @@ public class Selector {
 		}
 	}
 	
-	public void turnUpdate() {
+	public void turnUpdate(String input) {
+		int posX = 0;
+		int posY = 0;
+		int moveX = 0;
+		int moveY = 0;
+		if(originalPos!=null) {
+			posX = originalPos[0];
+			posY = originalPos[1];
+		}
+		if(movedTo!=null) {
+			moveX = movedTo[0];
+			moveY = movedTo[1];
+		}
+		String data = Integer.toString(posX)+Integer.toString(posY)+Integer.toString(moveX)+Integer.toString(moveY);
+		int intData = Integer.parseInt(data);
+		
+		if((turn.equals("w") && handler.getColor() != 'w')||(turn.equals("b") && handler.getColor() != 'b')) {
+			if(input!=null) {
+				posX = 7 - Integer.parseInt(input.substring(0, 1));
+				posY = 7 - Integer.parseInt(input.substring(1,2));
+				moveX = 7 - Integer.parseInt(input.substring(2,3));
+				moveY = 7 - Integer.parseInt(input.substring(3,4));
+			}
+			pieceSelected = handler.getPieceArrangeBoard().getPieceBoard()[posX][posY];
+			executeRecievedMove(pieceSelected,moveX,moveY);
+		}else if((turn.equals("w") && handler.getColor() == 'w')||(turn.equals("b") && handler.getColor() == 'b')) {
+			if(handler.isConnected()) {
+				try {
+					handler.getOPS().writeInt(intData);
+					handler.getOPS().flush();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+		
 		pieceSelected = null;
 		turnSwitch();
 		
@@ -251,8 +332,8 @@ public class Selector {
 		}
 
 		
-
-		
+		highlightUpdate();
+		handler.getGame().render();
 		/*for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
 			piece.checkMoves(true);
 			piece.checkProtects();
@@ -295,7 +376,40 @@ public class Selector {
 		}
 	}
 	
-
+	public void executeRecievedMove(Piece piece,int x,int y) {
+		if(piece != null) {
+			for(int[] pos:piece.getMovables()) {
+				if(Arrays.equals(pos, new int[]{x,y})) {
+					if(piece.getId().equals("k")) {
+						King k = (King)piece;
+						if(k.getShortCastle() == pos) {
+							k.shortCastle();
+							return;
+						}else if(k.getLongCastle() == pos) {
+							k.longCastle();
+							return;
+						}
+					}
+					piece.moveTo(x,y);
+					return;
+					
+				}
+			}
+			for(int[] pos:piece.getCapturables()) {
+				if(Arrays.equals(pos, new int[]{x,y})) {
+					if(piece.getId().equals("p")) {
+						Pawn p = (Pawn)piece;
+						if(p.getEnPassant() == pos) {
+							p.enPassant(pos[0],pos[1]);
+							return;
+						}
+					}
+					piece.moveTo(x,y);
+					return;
+				}
+			}
+		}
+	}
 		
 	
 	
