@@ -59,7 +59,10 @@ public class MouseManager implements MouseListener, MouseMotionListener {
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+		if(selector != null) {
+			selector.onMouseDrag(e);
+			selector.setDragging(true);
+		}
 	}
 
 	@Override
@@ -74,9 +77,7 @@ public class MouseManager implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if(selector != null) {
-			selector.onMouseClicked(e);
-		}
+
 	}
 
 	@Override
@@ -85,18 +86,26 @@ public class MouseManager implements MouseListener, MouseMotionListener {
 			leftPressed = true;
 		else if(e.getButton() == MouseEvent.BUTTON3)
 			rightPressed = true;
-		
+		if(selector!=null) {
+			selector.onMousePress(e);
+		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1)
+		if(e.getButton() == MouseEvent.BUTTON1) {
 			leftPressed = false;
-		else if(e.getButton() == MouseEvent.BUTTON3)
+		}
+		else if(e.getButton() == MouseEvent.BUTTON3) {
 			rightPressed = false;
+		}
 		
-		if(uiManager != null)
+		if(uiManager != null) {
 			uiManager.onMouseRelease(e);
+		}
+		if(selector!=null) {
+			selector.onMouseRelease(e);
+		}
 		
 	}
 

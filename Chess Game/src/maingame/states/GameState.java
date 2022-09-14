@@ -32,7 +32,6 @@ public class GameState extends State{
 		backgroundBoard = new BackgroundBoard(handler,8,8,64);
 		handler.setBackgroungBoard(backgroundBoard);
 		
-		//pieceBoard = new PieceArrangeBoard(handler,"/saves/test.txt");
 		pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
 		handler.setPieceArrangeBoard(pieceBoard);
 		
@@ -94,6 +93,15 @@ public class GameState extends State{
 			}
 			
 			}));
+		
+		uiManager.addObject(new UIImageButton(544,100,64,64,Assets.btn_queen,0,1,null,null,new ClickListener() {
+
+			@Override
+			public void onClick() {
+				handler.getMouseManager().getSelector().rewind();
+			}
+			
+			}));
 	}
 	
 	public void resetUI() {
@@ -112,10 +120,19 @@ public class GameState extends State{
 			}
 			
 			}));
+		uiManager.addObject(new UIImageButton(544,100,64,64,Assets.btn_queen,0,1,null,null,new ClickListener() {
+
+			@Override
+			public void onClick() {
+				handler.getMouseManager().getSelector().rewind();
+			}
+			
+			}));
 	}
 	
 	public void reloadBoard() {
-		pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
+		//pieceBoard = new PieceArrangeBoard(handler,"/saves/default.txt");
+		pieceBoard = new PieceArrangeBoard(handler,"/saves/test.txt");
 		handler.setPieceArrangeBoard(pieceBoard);
 		for(Piece piece:handler.getPieceArrangeBoard().getPieceList()) {
 			piece.checkProtects();

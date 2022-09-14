@@ -22,6 +22,7 @@ public class PieceArrangeBoard {
 	private int size;
 	private Piece[][] pieceBoard;
 	private ArrayList<Piece> pieceList;
+	private ArrayList<Piece> pieceRemoved;
 	private ArrayList<Piece> wPieces;
 	private ArrayList<Piece> bPieces;
 	private ArrayList<Pawn> pawnPieces;
@@ -108,6 +109,7 @@ public class PieceArrangeBoard {
 		}
 		
 		pieceList = new ArrayList<Piece>();
+		pieceRemoved = new ArrayList<Piece>();
 		wPieces = new ArrayList<Piece>();
 		bPieces = new ArrayList<Piece>();
 		pawnPieces = new ArrayList<Pawn>();
@@ -154,7 +156,7 @@ public class PieceArrangeBoard {
 		for(int y = 0;y < pieceBoard.length;y++) {
 			for(int x = 0; x < pieceBoard[y].length;x++) {
 				if(getPiece(x,y) != null)
-					getPiece(x,y).render(g,x*size,y*size);
+					getPiece(x,y).render(g,getPiece(x,y).getPixX(),getPiece(x,y).getPixY());
 			}
 		}
 	
@@ -245,6 +247,16 @@ public class PieceArrangeBoard {
 	public ArrayList<Piece> getPieceList(){
 		return pieceList;
 	}
+	
+	
+	public ArrayList<Piece> getPieceRemoved() {
+		return pieceRemoved;
+	}
+
+	public void setPieceRemoved(ArrayList<Piece> pieceRemoved) {
+		this.pieceRemoved = pieceRemoved;
+	}
+
 	public ArrayList<Piece> getWPieces(){
 		return wPieces;
 	}

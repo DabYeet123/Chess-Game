@@ -11,6 +11,7 @@ import input.KeyManager;
 import input.MouseManager;
 import maingame.states.GameState;
 import maingame.states.MenuState;
+import maingame.states.MultiplayerMenu;
 import maingame.states.State;
 
 
@@ -30,6 +31,7 @@ public class Game implements Runnable {
 	//States
 	public State gameState;
 	public State menuState;
+	public State multiplayerMenu;
 	
 	//Input
 	private KeyManager keyManager;
@@ -64,6 +66,7 @@ public class Game implements Runnable {
 		
 		menuState = new MenuState(handler);
 		gameState = new GameState(handler);
+		multiplayerMenu = new MultiplayerMenu(handler);
 		State.setState(menuState);
 	}
 	

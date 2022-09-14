@@ -22,7 +22,7 @@ import ui.UIManager;
 public class MenuState extends State{
 	
 	private UIManager uiManager;
-	private Font font;
+	//private Font font;
 	
 	private int port;
 	private String ip;
@@ -34,50 +34,11 @@ public class MenuState extends State{
 	public MenuState(Handler handler) {
 		super(handler);
 		
-		font = new Font("Dialog", Font.PLAIN, 50);
+		//font = new Font("Dialog", Font.PLAIN, 50);
 		
 		uiManager = new UIManager(handler);
 		handler.getMouseManager().setUIManager(uiManager);
-		uiManager.addObject(new UIImageButton(128, 256, 128, 128, Assets.btn_client, 0, 0, null, null, new ClickListener() {
-
-			@Override
-			public void onClick() {
-				ip = JOptionPane.showInputDialog(handler.getGame().getDisplay().getFrame(),"Enter IP: ");
-				port = Integer.parseInt(JOptionPane.showInputDialog(handler.getGame().getDisplay().getFrame(),"Enter a Port: "));
-				State.setState(handler.getGame().gameState);
-				handler.getGame().gameState.Init();
-				if(port!=-1) {
-				client = new Client(ip,port);
-				handler.setIPS(client.getIn());
-				handler.setOPS(client.getOut());
-				handler.setConnected(true);
-				}
-				handler.setColor('b');
-				GameState gameState = (GameState)handler.getGame().getGameState();
-				gameState.reloadBoard();
-			}
-			
-		}));
-		uiManager.addObject(new UIImageButton(384, 256, 128, 128, Assets.btn_server, 0, 0, null, null, new ClickListener() {
-
-			@Override
-			public void onClick() {
-				port = Integer.parseInt(JOptionPane.showInputDialog(handler.getGame().getDisplay().getFrame(),"Enter a Port: "));
-				State.setState(handler.getGame().gameState);
-				handler.getGame().gameState.Init();
-				if(port!=-1) {
-					server = new Server(port);
-					handler.setIPS(server.getIn());
-					handler.setOPS(server.getOut());
-					handler.setConnected(true);
-				}
-				handler.setColor('w');
-				GameState gameState = (GameState)handler.getGame().getGameState();
-				gameState.reloadBoard();
-				System.out.println("board loaded");
-			}
-			
-		}));
+		
 		
 		/*uiManager.addObject(new UIImageButton(256,256,128,64,Assets.btn_start,0,1,null,null,new ClickListener() {
 
@@ -88,6 +49,39 @@ public class MenuState extends State{
 			}
 			
 			}));*/
+		
+		uiManager.addObject(new UIImageButton(200, 256, 240, 64, Assets.btn_single, 0, 1, null, null, new ClickListener() {
+
+			@Override
+			public void onClick() {
+				handler.setColor('w');
+				State.setState(handler.getGame().gameState);
+				handler.getGame().gameState.Init();
+				GameState gameState = (GameState)handler.getGame().getGameState();
+				gameState.reloadBoard();
+			}
+			
+		}));
+		
+		uiManager.addObject(new UIImageButton(200, 353, 240, 64, Assets.btn_multi, 0, 1, null, null, new ClickListener() {
+
+			@Override
+			public void onClick() {
+				handler.getGame().multiplayerMenu.Init();
+				State.setState(handler.getGame().multiplayerMenu);
+			}
+			
+		}));
+		
+		uiManager.addObject(new UIImageButton(504, 592, 120, 32, Assets.btn_opt, 0, 1, null, null, new ClickListener() {
+
+			@Override
+			public void onClick() {
+				
+			}
+			
+		}));
+		
 	}
 	
 	@Override
@@ -98,15 +92,55 @@ public class MenuState extends State{
 
 	@Override
 	public void render(Graphics g) {
-		
+		g.drawImage(Assets.chessBackground,0,0,640,640,null);
 		uiManager.render(g);
-		g.setFont(font);
-		g.drawString("Start", 265, 380);
+		//g.setFont(font);
+		//g.drawString("Start", 265, 380);
 	}
 	
 	@Override
 	public void Init() {
 		
+		uiManager = new UIManager(handler);
+		handler.getMouseManager().setUIManager(uiManager);
+		
+		/*uiManager.addObject(new UIImageButton(256,256,128,64,Assets.btn_start,0,1,null,null,new ClickListener() {
+
+			@Override
+			public void onClick() {
+				State.setState(handler.getGame().gameState);
+				handler.getGame().gameState.Init();
+			}
+			
+			}));*/
+		
+		uiManager.addObject(new UIImageButton(200, 256, 240, 64, Assets.btn_single, 0, 1, null, null, new ClickListener() {
+
+			@Override
+			public void onClick() {
+				
+			}
+			
+		}));
+		
+		uiManager.addObject(new UIImageButton(200, 353, 240, 64, Assets.btn_multi, 0, 1, null, null, new ClickListener() {
+
+			@Override
+			public void onClick() {
+				handler.getGame().multiplayerMenu.Init();
+				State.setState(handler.getGame().multiplayerMenu);
+			}
+			
+		}));
+		
+		uiManager.addObject(new UIImageButton(504, 592, 120, 32, Assets.btn_opt, 0, 1, null, null, new ClickListener() {
+
+			@Override
+			public void onClick() {
+				
+			}
+			
+		}));
 	}
 	
 	@Override

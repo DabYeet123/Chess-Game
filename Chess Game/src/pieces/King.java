@@ -183,7 +183,8 @@ public class King extends Piece {
 				longRook = 0;
 				shortRook = 7;
 			}
-				
+			
+			if(!inCheck) {
 			if(pb[longRook][rowCheck]!=null) {
 				if(pb[longRook][rowCheck].id.equals("r")) {
 					int l1 = longList[0];
@@ -233,6 +234,7 @@ public class King extends Piece {
 					}
 				}
 			}
+		}
 		}
 	}
 	

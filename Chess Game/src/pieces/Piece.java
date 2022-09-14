@@ -72,6 +72,11 @@ public abstract class Piece {
 	public void checkRTPKing(int xSpace, int ySpace, boolean M, boolean C, boolean P,boolean KP) {
 		
 	}
+	public void refresh() {
+		pixX = posX * size;
+		pixY = posY * size;
+		//System.out.println("refreshed");
+	}
 	
 	public void update() {
 		Piece[][] pieceBoard = handler.getPieceArrangeBoard().getPieceBoard();
@@ -82,6 +87,7 @@ public abstract class Piece {
 				handler.getPieceArrangeBoard().getBPieces().remove(pieceBoard[posX][posY]);
 			}
 			handler.getPieceArrangeBoard().getPieceList().remove(pieceBoard[posX][posY]);
+			handler.getPieceArrangeBoard().getPieceRemoved().add(pieceBoard[posX][posY]);
 		}
 		pixX = posX * size;
 		pixY = posY * size;
@@ -92,6 +98,18 @@ public abstract class Piece {
 		pos[0] = posX;
 		pos[1] = posY;
 		pieceBoard[posX][posY] = this;
+	}
+	
+	public void reAdd() {
+		Piece[][] pieceBoard = handler.getPieceArrangeBoard().getPieceBoard();
+		pieceBoard[posX][posY] = this;
+		if(c.equals("w")) {
+			handler.getPieceArrangeBoard().getWPieces().add(this);
+		}else if(c.equals("b")) {
+			handler.getPieceArrangeBoard().getBPieces().add(this);
+		}
+		handler.getPieceArrangeBoard().getPieceList().add(this);
+		handler.getPieceArrangeBoard().getPieceRemoved().remove(this);
 	}
 	
 	
@@ -229,6 +247,36 @@ public abstract class Piece {
 		update();
 	}
 	
+	public void moveTo(int x, int y,boolean notRewind) {
+		
+		Piece p = this;
+		if(p.getId().equals("p")) {
+			Pawn pawn = (Pawn)p;
+			if(pawn.getFacing().equals("u")){
+				if(y == 6) {
+					pawn.hasMoved = false;
+					pawn.timesPassed = 0;
+				}
+			}else if(pawn.getFacing().equals("d")){
+				if(y == 1) {
+					pawn.hasMoved = false;
+					pawn.timesPassed = 0;
+				}
+			}
+		}else if(p.getId().equals("r")) {
+			Rook rook = (Rook)p;
+			rook.hasMoved = true;
+		}else if(p.getId().equals("k")) {
+			King king = (King)p;
+			king.hasMoved = true;
+		}
+		
+		handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
+		setPosX(x);
+		setPosY(y);
+		update();
+	}
+	
 	
 	/*public void capture(int x, int y) {
 		handler.getPieceArrangeBoard().getPieceBoard()[posX][posY] = null;
@@ -245,6 +293,7 @@ public abstract class Piece {
 			handler.getPieceArrangeBoard().getBPieces().remove(pieceBoard[posX][posY]);
 		}
 		handler.getPieceArrangeBoard().getPieceList().remove(pieceBoard[posX][posY]);
+		handler.getPieceArrangeBoard().getPieceRemoved().add(pieceBoard[posX][posY]);
 		handler.getPieceArrangeBoard().getPawnPieces().remove(pieceBoard[posX][posY]);
 		
 		if(c.equals("w")) {
@@ -278,9 +327,7 @@ public abstract class Piece {
 		handler.getMouseManager().getSelector().turnUpdate(null);
 		handler.getMouseManager().getSelector().highlightUpdate();
 	}
-	
-	
-	
+		
 	
 	public static boolean inRange(int x,int y) {
 	
